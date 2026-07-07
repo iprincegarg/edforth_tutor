@@ -1,6 +1,8 @@
 <?php
 class SettingsController extends Controller {
     private $sectionModel;
+    private $filterModel;
+    private $fieldModel;
 
     public function __construct() {
         if(!isLoggedIn()) {
@@ -9,6 +11,7 @@ class SettingsController extends Controller {
         }
         $this->sectionModel = $this->model('Section');
         $this->filterModel = $this->model('Filter');
+        $this->fieldModel = $this->model('FormField');
     }
 
     public function index() {
@@ -30,17 +33,22 @@ class SettingsController extends Controller {
         $filters = $this->filterModel->getFilters();
         $filterCount = $this->filterModel->getFilterCount();
 
+        $fields = $this->fieldModel->getFieldsWithDetails();
+
         $data = [
             'title' => 'Tutor Details Form',
             'sections' => $sections,
             'sectionCount' => $sectionCount,
             'filters' => $filters,
             'filterCount' => $filterCount,
+            'fields' => $fields,
             'section_name' => $_SESSION['section_name'] ?? '',
             'section_err' => $_SESSION['section_err'] ?? '',
             'filter_name' => $_SESSION['filter_name'] ?? '',
             'filter_values' => $_SESSION['filter_values'] ?? '',
             'filter_err' => $_SESSION['filter_err'] ?? '',
+            'field_err' => $_SESSION['field_err'] ?? '',
+            'field_form_data' => $_SESSION['field_form_data'] ?? [],
             'success_msg' => $_SESSION['success_msg'] ?? ''
         ];
 
@@ -49,6 +57,8 @@ class SettingsController extends Controller {
         unset($_SESSION['filter_name']);
         unset($_SESSION['filter_values']);
         unset($_SESSION['filter_err']);
+        unset($_SESSION['field_err']);
+        unset($_SESSION['field_form_data']);
         unset($_SESSION['success_msg']);
 
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -113,6 +123,15 @@ class SettingsController extends Controller {
                 if (!empty($order) && is_array($order)) {
                     foreach ($order as $index => $id) {
                         $this->sectionModel->updateSectionOrder((int)$id, (int)$index);
+                    }
+                    echo json_encode(['status' => 'success']);
+                    exit;
+                }
+            } elseif($action === 'reorder_fields') {
+                $order = $_POST['order'] ?? [];
+                if (!empty($order) && is_array($order)) {
+                    foreach ($order as $index => $id) {
+                        $this->fieldModel->updateSequence((int)$id, (int)$index);
                     }
                     echo json_encode(['status' => 'success']);
                     exit;
@@ -211,6 +230,88 @@ class SettingsController extends Controller {
                     $_SESSION['filter_err'] = 'Could not delete filter.';
                 }
                 header('Location: ' . URLROOT . '/settings/tutor_form#filters');
+                exit;
+            } elseif($action === 'add_field' || $action === 'edit_field') {
+                $fieldData = [
+                    'id' => $_POST['field_id'] ?? 0,
+                    'section_id' => $_POST['section_id'] ?? 0,
+                    'field_name' => trim($_POST['field_name'] ?? ''),
+                    'field_type' => $_POST['field_type'] ?? '',
+                    'filter_id' => !empty($_POST['filter_id']) ? $_POST['filter_id'] : null,
+                    'char_limit' => !empty($_POST['char_limit']) ? (int)$_POST['char_limit'] : null,
+                    'placeholder_text' => trim($_POST['placeholder_text'] ?? ''),
+                    'field_values' => trim($_POST['field_values'] ?? ''),
+                    'is_required' => isset($_POST['is_required']) && $_POST['is_required'] === '1' ? 1 : 0,
+                    'show_on_form' => isset($_POST['show_on_form']) && $_POST['show_on_form'] === '1' ? 1 : 0,
+                    'show_to_user' => isset($_POST['show_to_user']) && $_POST['show_to_user'] === '1' ? 1 : 0,
+                ];
+
+                if(empty($fieldData['section_id'])) {
+                    $data['field_err'] = 'Please select a section.';
+                } elseif(empty($fieldData['field_name'])) {
+                    $data['field_err'] = 'Please enter a field name.';
+                } elseif(strlen($fieldData['field_name']) > 30) {
+                    $data['field_err'] = 'Field name cannot exceed 30 characters.';
+                } elseif(empty($fieldData['field_type'])) {
+                    $data['field_err'] = 'Please select a field type.';
+                }
+
+                if(empty($data['field_err'])) {
+                    if($fieldData['field_type'] === 'file') {
+                        if($action === 'add_field' && $this->fieldModel->countFileFields() >= 5) {
+                            $data['field_err'] = 'Maximum 5 file uploads allowed on the form.';
+                        }
+                    } elseif($fieldData['field_type'] === 'radio' || $fieldData['field_type'] === 'dropdown') {
+                        $valuesArr = array_filter(array_map('trim', explode(',', $fieldData['field_values'])));
+                        if (empty($valuesArr)) {
+                            $data['field_err'] = 'Please provide field values (comma separated).';
+                        } else {
+                            foreach ($valuesArr as $val) {
+                                if (strlen($val) > 50) {
+                                    $data['field_err'] = 'Each value cannot exceed 50 characters.';
+                                    break;
+                                }
+                            }
+                            $fieldData['field_values'] = implode(', ', $valuesArr);
+                        }
+                    } elseif($fieldData['field_type'] === 'filter') {
+                        if(empty($fieldData['filter_id'])) {
+                            $data['field_err'] = 'Please select a filter.';
+                        }
+                    }
+                }
+
+                if(empty($data['field_err'])) {
+                    if($action === 'add_field') {
+                        if($this->fieldModel->addField($fieldData)) {
+                            $_SESSION['success_msg'] = 'Field added successfully!';
+                        } else {
+                            $data['field_err'] = 'Something went wrong adding the field.';
+                        }
+                    } else {
+                        if($this->fieldModel->updateField($fieldData)) {
+                            $_SESSION['success_msg'] = 'Field updated successfully!';
+                        } else {
+                            $data['field_err'] = 'Something went wrong updating the field.';
+                        }
+                    }
+                }
+
+                if(!empty($data['field_err'])) {
+                    $_SESSION['field_err'] = $data['field_err'];
+                    $_SESSION['field_form_data'] = $fieldData;
+                }
+                
+                header('Location: ' . URLROOT . '/settings/tutor_form#form');
+                exit;
+            } elseif($action === 'delete_field') {
+                $id = $_POST['field_id'] ?? 0;
+                if($this->fieldModel->deleteField($id)) {
+                    $_SESSION['success_msg'] = 'Field deleted successfully!';
+                } else {
+                    $_SESSION['field_err'] = 'Could not delete field.';
+                }
+                header('Location: ' . URLROOT . '/settings/tutor_form#form');
                 exit;
             }
         }
