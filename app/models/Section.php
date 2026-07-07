@@ -7,7 +7,7 @@ class Section {
     }
 
     public function getSections() {
-        $this->db->query('SELECT * FROM tutor_sections ORDER BY createdAt ASC');
+        $this->db->query('SELECT * FROM tutor_sections ORDER BY sequence_id ASC, createdAt ASC');
         return $this->db->resultSet();
     }
 
@@ -24,8 +24,13 @@ class Section {
     }
 
     public function addSection($name) {
-        $this->db->query('INSERT INTO tutor_sections (sectionName) VALUES (:name)');
+        $this->db->query('SELECT MAX(sequence_id) as max_seq FROM tutor_sections');
+        $row = $this->db->single();
+        $nextSeq = ($row->max_seq !== null) ? $row->max_seq + 1 : 0;
+
+        $this->db->query('INSERT INTO tutor_sections (sectionName, sequence_id) VALUES (:name, :seq)');
         $this->db->bind(':name', $name);
+        $this->db->bind(':seq', $nextSeq);
         return $this->db->execute();
     }
 
@@ -33,6 +38,13 @@ class Section {
         $this->db->query('UPDATE tutor_sections SET sectionName = :name WHERE id = :id');
         $this->db->bind(':id', $id);
         $this->db->bind(':name', $name);
+        return $this->db->execute();
+    }
+
+    public function updateSectionOrder($id, $sequence_id) {
+        $this->db->query('UPDATE tutor_sections SET sequence_id = :sequence_id WHERE id = :id');
+        $this->db->bind(':id', $id);
+        $this->db->bind(':sequence_id', $sequence_id);
         return $this->db->execute();
     }
 

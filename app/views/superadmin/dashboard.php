@@ -19,11 +19,11 @@
     </div>
 </div>
 
-<div class="card" style="margin-top: 2rem; max-width: 100%;">
-    <div class="card-header" style="text-align: left; margin-bottom: 1rem;">
-        <h3 class="card-title" style="font-size: 1.25rem;">Recent Activity</h3>
+<div class="card dashboard-recent-activity-card">
+    <div class="card-header dashboard-card-header-left">
+        <h3 class="card-title dashboard-card-title-lg">Recent Activity</h3>
     </div>
-    <div style="padding: 1rem; color: var(--text-muted);">
+    <div class="dashboard-recent-activity-content">
         <p>No recent activity to show.</p>
     </div>
 </div>

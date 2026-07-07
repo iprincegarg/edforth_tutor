@@ -30,10 +30,14 @@ class SettingsController extends Controller {
             'title' => 'Tutor Details Form',
             'sections' => $sections,
             'sectionCount' => $sectionCount,
-            'section_name' => '',
-            'section_err' => '',
-            'success_msg' => ''
+            'section_name' => $_SESSION['section_name'] ?? '',
+            'section_err' => $_SESSION['section_err'] ?? '',
+            'success_msg' => $_SESSION['success_msg'] ?? ''
         ];
+
+        unset($_SESSION['section_name']);
+        unset($_SESSION['section_err']);
+        unset($_SESSION['success_msg']);
 
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $action = $_POST['action'] ?? '';
@@ -51,14 +55,17 @@ class SettingsController extends Controller {
 
                 if(empty($data['section_err'])) {
                     if($this->sectionModel->addSection($data['section_name'])) {
-                        $data['success_msg'] = 'Section added successfully!';
-                        $data['section_name'] = '';
-                        $data['sections'] = $this->sectionModel->getSections();
-                        $data['sectionCount'] = $this->sectionModel->getSectionCount();
+                        $_SESSION['success_msg'] = 'Section added successfully!';
                     } else {
-                        $data['section_err'] = 'Something went wrong.';
+                        $_SESSION['section_err'] = 'Something went wrong.';
+                        $_SESSION['section_name'] = $data['section_name'];
                     }
+                } else {
+                    $_SESSION['section_err'] = $data['section_err'];
+                    $_SESSION['section_name'] = $data['section_name'];
                 }
+                header('Location: ' . URLROOT . '/settings/tutor_form');
+                exit;
             } elseif($action === 'edit_section') {
                 $id = $_POST['section_id'] ?? 0;
                 $name = trim($_POST['section_name'] ?? '');
@@ -71,18 +78,32 @@ class SettingsController extends Controller {
 
                 if(empty($data['section_err'])) {
                     if($this->sectionModel->updateSection($id, $name)) {
-                        $data['success_msg'] = 'Section updated successfully!';
-                        $data['sections'] = $this->sectionModel->getSections();
+                        $_SESSION['success_msg'] = 'Section updated successfully!';
+                    } else {
+                        $_SESSION['section_err'] = 'Something went wrong.';
                     }
+                } else {
+                    $_SESSION['section_err'] = $data['section_err'];
                 }
+                header('Location: ' . URLROOT . '/settings/tutor_form');
+                exit;
             } elseif($action === 'delete_section') {
                 $id = $_POST['section_id'] ?? 0;
                 if($this->sectionModel->deleteSection($id)) {
-                    $data['success_msg'] = 'Section deleted successfully!';
-                    $data['sections'] = $this->sectionModel->getSections();
-                    $data['sectionCount'] = $this->sectionModel->getSectionCount();
+                    $_SESSION['success_msg'] = 'Section deleted successfully!';
                 } else {
-                    $data['section_err'] = 'Could not delete section (it may be protected).';
+                    $_SESSION['section_err'] = 'Could not delete section (it may be protected).';
+                }
+                header('Location: ' . URLROOT . '/settings/tutor_form');
+                exit;
+            } elseif($action === 'reorder_sections') {
+                $order = $_POST['order'] ?? [];
+                if (!empty($order) && is_array($order)) {
+                    foreach ($order as $index => $id) {
+                        $this->sectionModel->updateSectionOrder((int)$id, (int)$index);
+                    }
+                    echo json_encode(['status' => 'success']);
+                    exit;
                 }
             }
         }

@@ -11,7 +11,7 @@
                 class="form-control <?php echo (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>"
                 value="<?php echo $data['email']; ?>" placeholder="admin@enterprise.com">
             <?php if (!empty($data['email_err'])): ?>
-                <span style="color: #ef4444; font-size: 0.875rem; margin-top: 0.35rem; display: block;">
+                <span class="form-error-text">
                     <?php echo $data['email_err']; ?>
                 </span>
             <?php endif; ?>
@@ -23,7 +23,7 @@
                 class="form-control <?php echo (!empty($data['password_err'])) ? 'is-invalid' : ''; ?>"
                 placeholder="••••••••">
             <?php if (!empty($data['password_err'])): ?>
-                <span style="color: #ef4444; font-size: 0.875rem; margin-top: 0.35rem; display: block;">
+                <span class="form-error-text">
                     <?php echo $data['password_err']; ?>
                 </span>
             <?php endif; ?>
