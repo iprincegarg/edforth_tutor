@@ -16,25 +16,30 @@
     </ul>
 </div>
 
+<!-- Toast Notifications (Top Right) -->
+<div id="toast-container" class="toast-container">
+    <?php if (!empty($data['success_msg'])): ?>
+        <div class="toast-alert toast-success">
+            <span class="toast-message-bold">Success:</span><?php echo $data['success_msg']; ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($data['section_err'])): ?>
+        <div class="toast-alert toast-error">
+            <span class="toast-message-bold">Error:</span><?php echo $data['section_err']; ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($data['filter_err'])): ?>
+        <div class="toast-alert toast-error">
+            <span class="toast-message-bold">Error:</span><?php echo $data['filter_err']; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
 <!-- Tab Content Area (No Outer Card) -->
 <div class="tab-content tutor-form-content">
 
     <!-- Create Sections Tab -->
     <div id="sections-tab" class="tab-pane active">
-
-        <!-- Toast Notifications (Top Right) -->
-        <div id="toast-container" class="toast-container">
-            <?php if (!empty($data['success_msg'])): ?>
-                <div class="toast-alert toast-success">
-                    <span class="toast-message-bold">Success:</span><?php echo $data['success_msg']; ?>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($data['section_err'])): ?>
-                <div class="toast-alert toast-error">
-                    <span class="toast-message-bold">Error:</span><?php echo $data['section_err']; ?>
-                </div>
-            <?php endif; ?>
-        </div>
 
         <!-- Two-Column Layout -->
         <div class="tutor-form-container">
@@ -156,27 +161,128 @@
 
     <!-- Create Filters Tab -->
     <div id="filters-tab" class="tab-pane">
-        <div class="card tutor-manage-card">
-            <h4 class="tutor-manage-title">Manage Filters</h4>
-            <p class="tutor-manage-desc">Define the filters that users
-                can use to search for tutors (e.g., Subject, City, Ratings).</p>
+        <div class="tutor-form-container">
+            <!-- Left: Create Filter Card -->
+            <div class="card tutor-card">
+                <div class="card-header tutor-card-header">
+                    <h5 id="filterFormTitle" class="tutor-card-title">Add New Filter</h5>
+                </div>
+                <div class="tutor-card-body">
+                    <form id="filterForm" action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST">
+                        <input type="hidden" name="action" id="filterFormAction" value="add_filter">
+                        <input type="hidden" name="filter_id" id="filterFormId" value="">
 
-            <form action="#" method="POST">
-                <div class="form-group input-max-400">
-                    <label class="form-label">Filter Name</label>
-                    <input type="text" class="form-control" placeholder="e.g. Preferred Subject">
+                        <div class="form-group tutor-form-group">
+                            <label class="form-label">Filter Name</label>
+                            <input type="text" name="filter_name" id="filterNameInput" class="form-control"
+                                placeholder="e.g. Preferred Subject" maxlength="25"
+                                value="<?php echo htmlspecialchars($data['filter_name']); ?>">
+                            <small class="tutor-char-count">Max 25 characters. (<span id="filterCharCount">0</span>/25)</small>
+                        </div>
+
+                        <div class="form-group tutor-form-group">
+                            <label class="form-label">Filter Values (Comma Separated)</label>
+                            <textarea name="filter_values" id="filterValuesInput" class="form-control" rows="3"
+                                placeholder="e.g. Math, Science, English"><?php echo htmlspecialchars($data['filter_values']); ?></textarea>
+                            <small class="tutor-char-count">Max 50 values. Max 45 characters per value.</small>
+                        </div>
+
+                        <div class="tutor-btn-group">
+                            <button type="submit" id="filterSubmitBtn" class="btn btn-primary tutor-btn-submit">
+                                Add Filter
+                            </button>
+                            <button type="button" id="filterCancelBtn" class="btn tutor-btn-cancel"
+                                onclick="cancelFilterEditMode()">Cancel</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group input-max-400">
-                    <label class="form-label">Filter Type</label>
-                    <select class="form-control">
-                        <option>Dropdown Selection</option>
-                        <option>Checkbox Group</option>
-                        <option>Range Slider</option>
-                    </select>
+            </div>
+
+            <!-- Right: List Filters Card -->
+            <div class="card tutor-sections-list-card">
+                <div class="card-header tutor-sections-header">
+                    <h5 class="tutor-card-title">Filters List</h5>
+                    <span class="tutor-sections-count">
+                        <?php echo $data['filterCount']; ?>
+                    </span>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="alert('UI Mockup: Filter added!')">Add
-                    Filter</button>
-            </form>
+
+                <!-- Scrollable Container -->
+                <div class="tutor-sections-container">
+                    <?php if (empty($data['filters'])): ?>
+                        <div class="tutor-sections-empty">
+                            <p class="tutor-sections-empty-text">No filters created yet.</p>
+                        </div>
+                    <?php else: ?>
+                        <table class="tutor-sections-table">
+                            <thead class="tutor-sections-thead">
+                                <tr>
+                                    <th class="tutor-sections-th" style="width: 30%">Filter Name</th>
+                                    <th class="tutor-sections-th" style="width: 50%">Values</th>
+                                    <th class="tutor-sections-th-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($data['filters'] as $filter): ?>
+                                    <tr class="tutor-sections-tr"
+                                        onmouseover="this.style.backgroundColor='var(--bg-color)'"
+                                        onmouseout="this.style.backgroundColor='transparent'">
+                                        <td class="tutor-sections-td" style="width: 30%">
+                                            <?php echo htmlspecialchars($filter->filterName); ?>
+                                        </td>
+                                        <td class="tutor-sections-td" style="width: 50%; font-size: 0.85rem;">
+                                            <div class="tutor-filter-chips">
+                                                <?php 
+                                                $valuesArr = array_filter(array_map('trim', explode(',', $filter->filterValues)));
+                                                $displayCount = min(count($valuesArr), 5);
+                                                for ($i = 0; $i < $displayCount; $i++) {
+                                                    echo '<span class="tutor-filter-chip">' . htmlspecialchars($valuesArr[$i]) . '</span>';
+                                                }
+                                                if (count($valuesArr) > 5) {
+                                                    echo '<span class="tutor-filter-chip tutor-filter-chip-more">+' . (count($valuesArr) - 5) . '</span>';
+                                                }
+                                                ?>
+                                            </div>
+                                        </td>
+                                        <td class="tutor-sections-td-actions">
+                                            <button type="button"
+                                                onclick="editFilter(<?php echo $filter->id; ?>, '<?php echo addslashes(htmlspecialchars($filter->filterName)); ?>', '<?php echo addslashes(htmlspecialchars($filter->filterValues)); ?>')"
+                                                class="action-btn-edit"
+                                                onmouseover="this.style.transform='scale(1.1)'"
+                                                onmouseout="this.style.transform='scale(1)'" title="Edit Filter">
+                                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                </svg>
+                                            </button>
+                                            <form action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST"
+                                                class="action-form-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this filter?');">
+                                                <input type="hidden" name="action" value="delete_filter">
+                                                <input type="hidden" name="filter_id" value="<?php echo $filter->id; ?>">
+                                                <button type="submit"
+                                                    class="action-btn-delete"
+                                                    onmouseover="this.style.transform='scale(1.1)'"
+                                                    onmouseout="this.style.transform='scale(1)'" title="Delete Filter">
+                                                    <svg width="18" height="18" fill="none" stroke="currentColor"
+                                                        stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                        </path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -228,10 +334,23 @@
 <script>
     // Tab Switching
     function switchTab(event, tabId) {
-        event.preventDefault();
+        if (event) event.preventDefault();
         const links = document.querySelectorAll('.nav-pills .nav-link');
         links.forEach(link => link.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        
+        // Find the link that corresponds to this tabId
+        let activeLink = null;
+        if (event && event.currentTarget) {
+            activeLink = event.currentTarget;
+        } else {
+            // Find it by traversing
+            links.forEach(link => {
+                if(link.getAttribute('onclick').includes(tabId)) {
+                    activeLink = link;
+                }
+            });
+        }
+        if(activeLink) activeLink.classList.add('active');
 
         const panes = document.querySelectorAll('.tab-pane');
         panes.forEach(pane => pane.classList.remove('active'));
@@ -240,7 +359,30 @@
         if (targetPane) {
             targetPane.classList.add('active');
         }
+        
+        // Update hash
+        if(tabId === 'filters-tab') {
+            window.location.hash = 'filters';
+        } else if(tabId === 'sections-tab') {
+            window.location.hash = '';
+        }
     }
+    
+    // Check hash on load
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.location.hash === '#filters') {
+            switchTab(null, 'filters-tab');
+        }
+        
+        // Fade out toasts
+        setTimeout(() => {
+            document.querySelectorAll('.toast-alert').forEach(toast => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 3000);
+    });
 
     // Character Counter
     const sectionInput = document.getElementById('sectionNameInput');
@@ -280,14 +422,58 @@
 
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.textContent = 'Add Section';
-
         <?php if ($data['sectionCount'] >= 10): ?>
             submitBtn.disabled = true;
             submitBtn.textContent = 'Limit Reached (10/10)';
         <?php endif; ?>
-
+        
         document.getElementById('cancelBtn').style.display = 'none';
     }
+
+    // Filter Character Counter
+    const filterNameInput = document.getElementById('filterNameInput');
+    const filterCharCount = document.getElementById('filterCharCount');
+    if (filterNameInput && filterCharCount) {
+        filterNameInput.addEventListener('input', function () {
+            filterCharCount.textContent = this.value.length;
+        });
+        filterCharCount.textContent = filterNameInput.value.length;
+    }
+
+    // Populate Filter Edit Form
+    function editFilter(id, name, values) {
+        document.getElementById('filterFormTitle').textContent = 'Edit Filter';
+        document.getElementById('filterFormAction').value = 'edit_filter';
+        document.getElementById('filterFormId').value = id;
+
+        filterNameInput.value = name;
+        filterCharCount.textContent = name.length;
+        
+        document.getElementById('filterValuesInput').value = values;
+
+        const submitBtn = document.getElementById('filterSubmitBtn');
+        submitBtn.textContent = 'Update Filter';
+        
+        document.getElementById('filterCancelBtn').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    // Cancel Filter Edit Mode
+    function cancelFilterEditMode() {
+        document.getElementById('filterFormTitle').textContent = 'Add New Filter';
+        document.getElementById('filterFormAction').value = 'add_filter';
+        document.getElementById('filterFormId').value = '';
+
+        filterNameInput.value = '';
+        filterCharCount.textContent = '0';
+        document.getElementById('filterValuesInput').value = '';
+
+        const submitBtn = document.getElementById('filterSubmitBtn');
+        submitBtn.textContent = 'Add Filter';
+        
+        document.getElementById('filterCancelBtn').style.display = 'none';
+    }
+
 
     // Auto-dismiss Toasts after 3 seconds
     document.addEventListener('DOMContentLoaded', function () {
