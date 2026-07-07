@@ -59,23 +59,36 @@ class SuperadminController extends Controller {
     }
 
     public function createUserSession($user) {
-        $_SESSION['user_id'] = $user->id;
-        $_SESSION['username'] = $user->username;
-        $_SESSION['role'] = $user->role;
-
         // Log the login
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
         $browserAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
         $this->userModel->logLogin($user->id, $browserAgent, $ipAddress);
+
+        // Generate and store secure token
+        $token = $this->userModel->createSessionToken($user->id, $ipAddress, $browserAgent);
+        
+        // Destroy old session IDs for security
+        session_regenerate_id(true);
+
+        $_SESSION['user_id'] = $user->id;
+        $_SESSION['username'] = $user->username;
+        $_SESSION['role'] = $user->role;
+        $_SESSION['auth_token'] = $token;
 
         header('Location: ' . URLROOT . '/dashboard');
         exit;
     }
 
     public function logout() {
+        // Invalidate token in DB
+        if(isset($_SESSION['auth_token'])) {
+            $this->userModel->invalidateToken($_SESSION['auth_token']);
+        }
+
         unset($_SESSION['user_id']);
         unset($_SESSION['username']);
         unset($_SESSION['role']);
+        unset($_SESSION['auth_token']);
         session_destroy();
 
         header('Location: ' . URLROOT . '/superadmin/login');

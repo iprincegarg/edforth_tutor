@@ -1,7 +1,7 @@
 <?php
 class Router {
     protected $currentController = 'SuperadminController';
-    protected $currentMethod = 'login';
+    protected $currentMethod = 'index';
     protected $params = [];
 
     public function __construct() {
@@ -41,8 +41,20 @@ class Router {
     }
 
     public function getUrl() {
+        $urlStr = '';
         if(isset($_GET['url'])) {
-            $url = rtrim($_GET['url'], '/');
+            $urlStr = $_GET['url'];
+        } else {
+            $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            $basePath = parse_url(URLROOT, PHP_URL_PATH) ?? '';
+            if (!empty($basePath) && strpos($uri, $basePath) === 0) {
+                $uri = substr($uri, strlen($basePath));
+            }
+            $urlStr = $uri;
+        }
+
+        if(!empty($urlStr) && $urlStr !== '/') {
+            $url = trim($urlStr, '/');
             $url = filter_var($url, FILTER_SANITIZE_URL);
             $url = explode('/', $url);
             return $url;
