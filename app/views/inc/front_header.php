@@ -120,6 +120,9 @@ EdForth Tutors
                     <li class="">
                       <a href="https://docs.google.com/forms/d/e/1FAIpQLSeMGrJtCmddjrnjPTb7Hhmqc5SfoX-t3_j8_T0mgcIypKsplQ/viewform" target="_blank">Student</a>
                     </li>
+                    <li class="">
+                      <a href="<?php echo URLROOT; ?>/find-tutor" class="btn rounded-pill" style="background-color: #f59e0b; color: white; padding: 6px 18px; font-weight: 600; text-transform: uppercase; font-size: 14px; margin-left: 10px;">Find Tutor</a>
+                    </li>
                   </ul>
                   <div class="hamburger menu_mm">
                     <i class="fa fa-bars menu_mm" aria-hidden="true"></i>
@@ -176,6 +179,9 @@ EdForth Tutors
           </li>
           <li class="menu_mm">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSeMGrJtCmddjrnjPTb7Hhmqc5SfoX-t3_j8_T0mgcIypKsplQ/viewform" target="_blank">Student</a>
+          </li>
+          <li class="menu_mm">
+            <a href="<?php echo URLROOT; ?>/find-tutor" style="color: #f59e0b;">Find Tutor</a>
           </li>
         </ul>
       </nav>
