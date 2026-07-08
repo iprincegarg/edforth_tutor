@@ -58,6 +58,30 @@ try {
     $db->execute();
     echo "Table 'tutors_form' created successfully.\n";
 
+    // Create settings table
+    $db->query("CREATE TABLE IF NOT EXISTS `settings` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `setting_key` varchar(255) NOT NULL UNIQUE,
+        `setting_value` longtext,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    $db->execute();
+    echo "Table 'settings' created successfully.\n";
+
+    // Seed front page content
+    $seedFile = __DIR__ . '/scratch/main_content.html';
+    if (file_exists($seedFile)) {
+        $htmlContent = file_get_contents($seedFile);
+        $db->query("SELECT id FROM `settings` WHERE `setting_key` = 'front_page_content'");
+        $exists = $db->single();
+        if (!$exists) {
+            $db->query("INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES ('front_page_content', :content)");
+            $db->bind(':content', $htmlContent);
+            $db->execute();
+            echo "Seeded front_page_content successfully.\n";
+        }
+    }
+
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }

@@ -1,13 +1,13 @@
 <?php
 class Router {
-    protected $currentController = 'SuperadminController';
+    protected $currentController = 'FrontController';
     protected $currentMethod = 'index';
     protected $params = [];
 
     public function __construct() {
         $url = $this->getUrl();
 
-        // Default to superadmin if empty, or map appropriately
+        // Default to Front if empty, or map appropriately
         if(isset($url[0])) {
             $controllerName = str_replace(' ', '', ucwords(str_replace('-', ' ', $url[0]))) . 'Controller';
             if(file_exists('../app/controllers/' . $controllerName . '.php')) {

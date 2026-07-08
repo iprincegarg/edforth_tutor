@@ -303,18 +303,15 @@
 <body>
     <header class="header-bar">
         <a href="<?php echo URLROOT ?? '/'; ?>" class="logo">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
-            </svg>
-            <?php echo SITENAME ?? 'Edforth'; ?>
+            <img src="<?php echo URLROOT; ?>/uploads/assets/logo.png" alt="EdForth" style="height: 32px; width: auto;" />
         </a>
     </header>
 
     <div class="container">
         <div class="form-header">
             <h1>Register as a Tutor</h1>
-            <p>Join our community of expert educators. Share your knowledge and make an impact today.</p>
+            <p>Join as expert educator. Register today and start earning.</p>
+            <p style="margin-top: 15px; font-weight: 500; font-size: 1rem;">Already registered? <a href="<?php echo URLROOT; ?>/tutor-portal" style="color: var(--primary); text-decoration: underline;">Login here</a></p>
         </div>
         
         <?php if(isset($_SESSION['form_success'])): ?>

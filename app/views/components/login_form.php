@@ -1,5 +1,6 @@
 <div class="card">
     <div class="card-header">
+        <img src="<?php echo URLROOT; ?>/uploads/assets/logo.png" alt="EdForth" style="max-height: 40px; margin-bottom: 10px;" />
         <h1 class="card-title">EdForth Tutor</h1>
         <p class="card-subtitle">Sign in to your EdForth Admin account</p>
     </div>

@@ -5,6 +5,7 @@ class SettingsController extends Controller {
     private $fieldModel;
     private $submissionModel;
     private $userModel;
+    private $settingModel;
 
     public function __construct() {
         if(!isLoggedIn()) {
@@ -14,12 +15,40 @@ class SettingsController extends Controller {
         $this->sectionModel = $this->model('Section');
         $this->filterModel = $this->model('Filter');
         $this->fieldModel = $this->model('FormField');
+        $this->settingModel = $this->model('Setting');
     }
 
     public function index() {
         // Redirect to a default settings page
-        header('Location: ' . URLROOT . '/settings/tutor_form');
+        header('Location: ' . URLROOT . '/settings/front_cms');
         exit;
+    }
+
+    public function front_cms() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $content = $_POST['content'] ?? '';
+            if($this->settingModel->updateSetting('front_page_content', $content)) {
+                $_SESSION['success_msg'] = 'Front page content updated successfully!';
+            } else {
+                $_SESSION['error_msg'] = 'Something went wrong.';
+            }
+            header('Location: ' . URLROOT . '/settings/front_cms');
+            exit;
+        }
+
+        $content = $this->settingModel->getSetting('front_page_content');
+        
+        $data = [
+            'title' => 'Front CMS',
+            'content' => $content,
+            'success_msg' => $_SESSION['success_msg'] ?? '',
+            'error_msg' => $_SESSION['error_msg'] ?? ''
+        ];
+
+        unset($_SESSION['success_msg']);
+        unset($_SESSION['error_msg']);
+
+        $this->view('settings/front_cms', $data);
     }
 
     public function tutor_form() {
