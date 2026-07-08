@@ -9,7 +9,7 @@ class Router {
 
         // Default to superadmin if empty, or map appropriately
         if(isset($url[0])) {
-            $controllerName = ucwords($url[0]) . 'Controller';
+            $controllerName = str_replace(' ', '', ucwords(str_replace('-', ' ', $url[0]))) . 'Controller';
             if(file_exists('../app/controllers/' . $controllerName . '.php')) {
                 $this->currentController = $controllerName;
                 unset($url[0]);

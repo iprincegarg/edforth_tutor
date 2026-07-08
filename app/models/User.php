@@ -6,6 +6,17 @@ class User {
         $this->db = new Database();
     }
 
+    // Create a new user
+    public function createUser($username, $hashedPassword, $role, $status) {
+        $this->db->query('INSERT INTO user (role, username, pass, status) VALUES (:role, :username, :pass, :status)');
+        $this->db->bind(':role', $role);
+        $this->db->bind(':username', $username);
+        $this->db->bind(':pass', $hashedPassword);
+        $this->db->bind(':status', $status);
+        
+        return $this->db->execute();
+    }
+
     // Login user
     public function login($email, $password, $role) {
         // Here we use username for email input as per the request spec where username=admin

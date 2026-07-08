@@ -9,9 +9,9 @@
                 Overview
             </a>
         </li>
-        <!-- Tutors Module (Dummy) -->
+        <!-- Tutors Module -->
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="<?php echo URLROOT; ?>/tutors" class="sidebar-link">
                 Tutors
             </a>
         </li>

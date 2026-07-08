@@ -3,6 +3,8 @@ class SettingsController extends Controller {
     private $sectionModel;
     private $filterModel;
     private $fieldModel;
+    private $submissionModel;
+    private $userModel;
 
     public function __construct() {
         if(!isLoggedIn()) {

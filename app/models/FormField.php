@@ -8,7 +8,7 @@ class FormField {
 
     public function getFieldsWithDetails() {
         $this->db->query('
-            SELECT f.*, s.sectionName, fi.filterName 
+            SELECT f.*, s.sectionName, fi.filterName, fi.filterValues
             FROM tutor_form_fields f
             JOIN tutor_sections s ON f.section_id = s.id
             LEFT JOIN tutor_filters fi ON f.filter_id = fi.id

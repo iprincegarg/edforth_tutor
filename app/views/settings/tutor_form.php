@@ -1,9 +1,9 @@
 <?php require_once APPROOT . '/views/inc/dash_header.php'; ?>
 
 <!-- Top Section: Header and Detached Tab Pills -->
-<div class="tutor-form-header">
+<div class="tutor-form-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <!-- Detached Tab Pills -->
-    <ul class="nav-pills tutor-form-tabs" id="tutorFormTabs">
+    <ul class="nav-pills tutor-form-tabs" id="tutorFormTabs" style="margin-bottom: 0;">
         <li class="nav-item">
             <a class="nav-link active" onclick="switchTab(event, 'sections-tab')">Create Sections</a>
         </li>
@@ -14,6 +14,12 @@
             <a class="nav-link" onclick="switchTab(event, 'form-tab')">Create Form</a>
         </li>
     </ul>
+    <div>
+        <a href="<?php echo URLROOT; ?>/register-as-tutor" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 14px; line-height: 1.5; border-radius: 4px; white-space: nowrap;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            Access Form
+        </a>
+    </div>
 </div>
 
 <!-- Toast Notifications (Top Right) -->

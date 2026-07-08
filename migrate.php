@@ -47,6 +47,17 @@ try {
         echo "Superadmin 'admin' already exists.\n";
     }
 
+    // Create tutors_form table
+    $db->query("CREATE TABLE IF NOT EXISTS `tutors_form` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `form_data` json NOT NULL,
+        `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+        `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    $db->execute();
+    echo "Table 'tutors_form' created successfully.\n";
+
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }
