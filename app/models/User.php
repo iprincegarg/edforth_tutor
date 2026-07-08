@@ -97,4 +97,11 @@ class User {
         $this->db->bind(':token', $token);
         $this->db->execute();
     }
+    public function updateUserCredentials($oldUsername, $newUsername, $newHashedPassword) {
+        $this->db->query('UPDATE user SET username = :newUsername, pass = :newPass WHERE username = :oldUsername');
+        $this->db->bind(':newUsername', $newUsername);
+        $this->db->bind(':newPass', $newHashedPassword);
+        $this->db->bind(':oldUsername', $oldUsername);
+        return $this->db->execute();
+    }
 }

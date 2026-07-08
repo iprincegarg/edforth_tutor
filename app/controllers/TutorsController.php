@@ -86,10 +86,36 @@ class TutorsController extends Controller {
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 
                 if($this->userModel->createUser($username, $hashedPassword, 'tutor', 1)) {
-                    $this->submissionModel->updateStatus($id, 'approved');
+                    $this->submissionModel->updateStatusAndCredentials($id, 'approved', $username, $password);
                     $_SESSION['success_msg'] = 'Tutor approved and account created successfully!';
                 } else {
                     $_SESSION['field_err'] = 'Failed to create tutor account.';
+                }
+            }
+        }
+        header('Location: ' . URLROOT . '/tutors');
+        exit;
+    }
+
+    public function change_credentials() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id = $_POST['submission_id'] ?? 0;
+            $oldUsername = $_POST['old_username'] ?? '';
+            $newUsername = $_POST['new_username'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+
+            if(empty($newUsername) || empty($newPassword)) {
+                $_SESSION['field_err'] = 'New username and password are required.';
+            } else {
+                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                
+                // Update User table
+                if($this->userModel->updateUserCredentials($oldUsername, $newUsername, $hashedPassword)) {
+                    // Update tutors_form table
+                    $this->submissionModel->updateCredentials($id, $newUsername, $newPassword);
+                    $_SESSION['success_msg'] = 'Tutor credentials updated successfully!';
+                } else {
+                    $_SESSION['field_err'] = 'Failed to update tutor credentials.';
                 }
             }
         }

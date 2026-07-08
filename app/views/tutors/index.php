@@ -125,6 +125,13 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                 </svg>
                                             </button>
+                                            <?php if($sub->status === 'approved' && !empty($sub->username)): ?>
+                                            <button type="button" class="action-btn-edit" style="color: #3b82f6;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Credentials" onclick="openChangeCredentialsModal(<?php echo $sub->id; ?>, '<?php echo htmlspecialchars($sub->username, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($sub->raw_password ?? '', ENT_QUOTES); ?>')">
+                                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                                </svg>
+                                            </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -240,21 +247,53 @@ function buildPaginationUrl($t_page, $s_page, $search) {
 <!-- Approve Modal -->
 <div id="approveModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:2rem; border-radius:8px; width:400px; max-width:90%;">
-        <h4 style="margin-top:0;">Approve Tutor</h4>
+        <h4 style="margin-top:0; display:flex; justify-content:space-between;">Approve Tutor
+            <button type="button" onclick="document.getElementById('approveModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer;">&times;</button>
+        </h4>
         <p style="font-size:0.9rem; color:var(--text-muted);">Please create account credentials for this tutor.</p>
         <form action="<?php echo URLROOT; ?>/tutors/approve_submission" method="POST">
             <input type="hidden" name="submission_id" id="approveSubmissionId" value="">
             <div class="form-group tutor-form-group">
                 <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" required>
+                <input type="text" name="username" id="approveUsername" class="form-control" maxlength="10" required oninput="document.getElementById('approveUsernameCount').innerText = this.value.length + '/10'">
+                <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="approveUsernameCount">0/10</div>
             </div>
             <div class="form-group tutor-form-group">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <input type="password" name="password" id="approvePassword" class="form-control" maxlength="8" required oninput="document.getElementById('approvePasswordCount').innerText = this.value.length + '/8'">
+                <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="approvePasswordCount">0/8</div>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                 <button type="button" class="btn tutor-btn-cancel" onclick="document.getElementById('approveModal').style.display='none'">Cancel</button>
                 <button type="submit" class="btn btn-success" style="background-color:#10b981; color: white;">Create User & Approve</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Change Credentials Modal -->
+<div id="changeCredentialsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:2rem; border-radius:8px; width:400px; max-width:90%;">
+        <h4 style="margin-top:0; display:flex; justify-content:space-between;">Change Credentials
+            <button type="button" onclick="document.getElementById('changeCredentialsModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer;">&times;</button>
+        </h4>
+        <p style="font-size:0.9rem; color:var(--text-muted);">Update the login credentials for this tutor.</p>
+        <form action="<?php echo URLROOT; ?>/tutors/change_credentials" method="POST">
+            <input type="hidden" name="submission_id" id="changeCredSubmissionId" value="">
+            <input type="hidden" name="old_username" id="oldUsername" value="">
+            <div class="form-group tutor-form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="new_username" id="newUsername" class="form-control" maxlength="10" required oninput="document.getElementById('newUsernameCount').innerText = this.value.length + '/10'">
+                <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="newUsernameCount">0/10</div>
+            </div>
+            <div class="form-group tutor-form-group">
+                <label class="form-label">Password</label>
+                <input type="text" name="new_password" id="newPassword" class="form-control" maxlength="8" required oninput="document.getElementById('newPasswordCount').innerText = this.value.length + '/8'">
+                <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="newPasswordCount">0/8</div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn tutor-btn-cancel" onclick="document.getElementById('changeCredentialsModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="background-color:#3b82f6; color: white;">Save Changes</button>
             </div>
         </form>
     </div>
@@ -307,25 +346,52 @@ function buildPaginationUrl($t_page, $s_page, $search) {
 
     function openApproveModal(id) {
         document.getElementById('approveSubmissionId').value = id;
+        document.getElementById('approveUsername').value = '';
+        document.getElementById('approvePassword').value = '';
+        document.getElementById('approveUsernameCount').innerText = '0/10';
+        document.getElementById('approvePasswordCount').innerText = '0/8';
         document.getElementById('approveModal').style.display = 'flex';
+    }
+
+    function openChangeCredentialsModal(id, oldUsername, oldPassword) {
+        document.getElementById('changeCredSubmissionId').value = id;
+        document.getElementById('oldUsername').value = oldUsername;
+        
+        let newUserInput = document.getElementById('newUsername');
+        newUserInput.value = oldUsername; // Default to existing
+        document.getElementById('newUsernameCount').innerText = (oldUsername ? oldUsername.length : 0) + '/10';
+        
+        let newPassInput = document.getElementById('newPassword');
+        newPassInput.value = oldPassword; // Show existing password
+        document.getElementById('newPasswordCount').innerText = (oldPassword ? oldPassword.length : 0) + '/8';
+        
+        document.getElementById('changeCredentialsModal').style.display = 'flex';
     }
 
     function viewSubmissionData(jsonStr) {
         let data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-        let html = '<table class="tutor-sections-table" style="width:100%; border:1px solid #e2e8f0; border-collapse:collapse;">';
+        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">';
+        
         for(let key in data) {
             let val = data[key];
             if(val && typeof val === 'string' && val.startsWith('uploads/')) {
-                val = `<a href="<?php echo URLROOT; ?>/../${val}" target="_blank" style="color:var(--primary); text-decoration:underline;">View File</a>`;
+                val = `<a href="<?php echo URLROOT; ?>/../${val}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #e0f2fe; color: #0284c7; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: background 0.2s;" onmouseover="this.style.background='#bae6fd'" onmouseout="this.style.background='#e0f2fe'">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        View File
+                       </a>`;
             } else {
-                val = val ? val.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'N/A';
+                val = val ? val.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;') : '<span style="color:#94a3b8; font-style:italic;">N/A</span>';
             }
             
             let displayName = fieldNamesMap[key] || key.replace('field_', 'Field ');
             
-            html += `<tr><th style="padding:8px; border:1px solid #e2e8f0; text-align:left; background:#f8fafc; width:40%;">${displayName}</th><td style="padding:8px; border:1px solid #e2e8f0;">${val}</td></tr>`;
+            html += `
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 6px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.05)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.02)';">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: #64748b;">${displayName}</span>
+                <div style="font-size: 0.95rem; color: #0f172a; word-break: break-word; line-height: 1.5;">${val}</div>
+            </div>`;
         }
-        html += '</table>';
+        html += '</div>';
         document.getElementById('viewDataContent').innerHTML = html;
         document.getElementById('viewDataModal').style.display = 'flex';
     }

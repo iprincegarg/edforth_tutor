@@ -96,4 +96,21 @@ class TutorSubmission {
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    public function updateStatusAndCredentials($id, $status, $username, $password) {
+        $this->db->query('UPDATE tutors_form SET status = :status, username = :username, raw_password = :password WHERE id = :id');
+        $this->db->bind(':status', $status);
+        $this->db->bind(':username', $username);
+        $this->db->bind(':password', $password);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    public function updateCredentials($id, $username, $password) {
+        $this->db->query('UPDATE tutors_form SET username = :username, raw_password = :password WHERE id = :id');
+        $this->db->bind(':username', $username);
+        $this->db->bind(':password', $password);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
 }
