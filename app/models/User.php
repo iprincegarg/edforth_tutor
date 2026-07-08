@@ -104,4 +104,9 @@ class User {
         $this->db->bind(':oldUsername', $oldUsername);
         return $this->db->execute();
     }
+
+    public function getActiveTutors() {
+        $this->db->query('SELECT id, username FROM user WHERE role = "tutor" AND status = 1');
+        return $this->db->resultSet();
+    }
 }

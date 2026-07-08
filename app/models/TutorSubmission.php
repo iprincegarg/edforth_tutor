@@ -113,4 +113,10 @@ class TutorSubmission {
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    public function getSubmissionByUsername($username) {
+        $this->db->query('SELECT * FROM tutors_form WHERE username = :username LIMIT 1');
+        $this->db->bind(':username', $username);
+        return $this->db->single();
+    }
 }

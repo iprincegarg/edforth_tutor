@@ -58,6 +58,102 @@ class SuperadminController extends Controller {
         }
     }
 
+    public function tickets() {
+        if(!isLoggedIn() || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sa') {
+            header('Location: ' . URLROOT . '/superadmin/login');
+            exit;
+        }
+
+        $ticketModel = $this->model('Ticket');
+        $tickets = $ticketModel->getAllTickets();
+
+        $data = [
+            'title' => 'Support Tickets',
+            'tickets' => $tickets
+        ];
+
+        $this->view('superadmin/tickets', $data);
+    }
+
+    public function viewTicket($id) {
+        if(!isLoggedIn() || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sa') {
+            header('Location: ' . URLROOT . '/superadmin/login');
+            exit;
+        }
+
+        $ticketModel = $this->model('Ticket');
+        $ticket = $ticketModel->getTicketById($id);
+
+        if (!$ticket) {
+            header('Location: ' . URLROOT . '/superadmin/tickets');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_POST['close_ticket'])) {
+                $ticketModel->updateStatus($id, 'closed');
+            } else {
+                $replyMessage = trim($_POST['reply_message'] ?? '');
+                if (!empty($replyMessage)) {
+                    $replies = json_decode($ticket->reply_json ?? '[]', true) ?? [];
+                    $replies[] = [
+                        'userID' => $_SESSION['user_id'], // admin user id
+                        'message' => $replyMessage,
+                        'timestamp' => date('Y-m-d H:i:s')
+                    ];
+                    $ticketModel->addReply($id, json_encode($replies));
+                }
+            }
+            header('Location: ' . URLROOT . '/superadmin/viewTicket/' . $id);
+            exit;
+        }
+
+        $data = [
+            'title' => 'View Ticket',
+            'ticket' => $ticket
+        ];
+
+        $this->view('superadmin/view_ticket', $data);
+    }
+
+    public function classes() {
+        if(!isLoggedIn() || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sa') {
+            header('Location: ' . URLROOT . '/superadmin/login');
+            exit;
+        }
+
+        $meetingModel = $this->model('LiveMeeting');
+        $userModel = $this->model('User');
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $tutorId = $_POST['tutor_id'] ?? '';
+            $topic = trim($_POST['topic'] ?? '');
+            $scheduledAt = $_POST['scheduled_at'] ?? '';
+            $type = $_POST['type'] ?? 'online';
+
+            if (!empty($tutorId) && !empty($topic) && !empty($scheduledAt)) {
+                $roomName = null;
+                if ($type === 'online') {
+                    $roomName = 'EdforthClass_' . uniqid();
+                }
+                $meetingModel->createMeeting($tutorId, $topic, $roomName, $scheduledAt, $type);
+            }
+            header('Location: ' . URLROOT . '/superadmin/classes');
+            exit;
+        }
+
+        $meetings = $meetingModel->getAllMeetings();
+        $tutors = $userModel->getActiveTutors();
+
+        $data = [
+            'title' => 'Classes',
+            'meetings' => $meetings,
+            'tutors' => $tutors
+        ];
+
+        $this->view('superadmin/live_meetings', $data);
+    }
+
     public function createUserSession($user) {
         // Log the login
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
