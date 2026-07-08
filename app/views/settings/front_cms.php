@@ -26,25 +26,24 @@
     </div>
 </div>
 
-<!-- Include CKEditor 5 from CDN -->
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<!-- Include CodeMirror from CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
 <script>
-    ClassicEditor
-        .create(document.querySelector('#editor'), {
-            htmlSupport: {
-                allow: [
-                    {
-                        name: /.*/,
-                        attributes: true,
-                        classes: true,
-                        styles: true
-                    }
-                ]
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        });
+    var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+        mode: "htmlmixed",
+        theme: "monokai",
+        lineNumbers: true,
+        indentUnit: 4
+    });
+    editor.setSize("100%", "600px");
 </script>
 
 <?php require_once APPROOT . '/views/inc/dash_footer.php'; ?>
