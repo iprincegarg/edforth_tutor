@@ -10,14 +10,14 @@ class Router {
         // Default to Front if empty, or map appropriately
         if(isset($url[0])) {
             $controllerName = str_replace(' ', '', ucwords(str_replace('-', ' ', $url[0]))) . 'Controller';
-            if(file_exists('../app/controllers/' . $controllerName . '.php')) {
+            if(file_exists(APPROOT . '/controllers/' . $controllerName . '.php')) {
                 $this->currentController = $controllerName;
                 unset($url[0]);
             }
         }
 
         // Require the controller
-        $controllerFile = '../app/controllers/' . $this->currentController . '.php';
+        $controllerFile = APPROOT . '/controllers/' . $this->currentController . '.php';
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             $this->currentController = new $this->currentController;

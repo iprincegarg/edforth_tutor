@@ -11,7 +11,6 @@ define('APPROOT', dirname(dirname(__FILE__)));
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $base_dir = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-$base_dir = str_replace('/public/', '', $base_dir);
 $base_dir = rtrim($base_dir, '/');
 define('URLROOT', $protocol . '://' . $host . $base_dir);
 // Site Name
