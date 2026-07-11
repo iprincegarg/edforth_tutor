@@ -76,20 +76,8 @@
 
   </div>
 
-  <script src="https://edforthtutors.com/static/js/jquery-3.2.1.min.js"></script>
-  <script src="https://edforthtutors.com/static/css/bootstrap4/popper.js"></script>
-  <script src="https://edforthtutors.com/static/css/bootstrap4/bootstrap.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/greensock/TweenMax.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/greensock/TimelineMax.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/scrollmagic/ScrollMagic.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/greensock/animation.gsap.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/greensock/ScrollToPlugin.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/easing/easing.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/parallax-js-master/parallax.min.js"></script>
-  <script src="https://edforthtutors.com/static/js/custom.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/colorbox/jquery.colorbox-min.js"></script>
-  <script src="https://edforthtutors.com/static/js/about.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
   
 <script>
   // Add this to your existing JavaScript file or in a script tag at the bottom of your page
@@ -274,4 +262,26 @@
   </script>
 </body>
 
+
+<script>
+  // Mobile hamburger menu toggle
+  (function() {
+    const hamburger = document.querySelector('.hamburger');
+    const menu = document.querySelector('.menu');
+    const menuClose = document.querySelector('.menu_close');
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    function openMenu() { menu.classList.add('active'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeMenu() { menu.classList.remove('active'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+    if (hamburger) hamburger.addEventListener('click', openMenu);
+    if (menuClose) menuClose.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+  })();
+</script>
+</body>
 </html>

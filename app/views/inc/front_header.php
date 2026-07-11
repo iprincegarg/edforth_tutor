@@ -7,7 +7,7 @@
 EdForth Tutors
 
   </title>
-  <link rel="icon" type="image/x-icon" href="https://edforthtutors.com/static/images/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="<?php echo URLROOT; ?>/uploads/assets/favicon.png" />
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   
@@ -18,14 +18,11 @@ EdForth Tutors
   <!-- <link rel="stylesheet" type="text/css" href="styles/bootstrap4/bootstrap.min.css" /> -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-  <link href="https://edforthtutors.com/static/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet"
-    type="text/css" />
-  <link rel="stylesheet" type="text/css"
-    href="https://edforthtutors.com/static/plugins/OwlCarousel2-2.2.1/owl.carousel.css" />
-  <link rel="stylesheet" type="text/css"
-    href="https://edforthtutors.com/static/plugins/OwlCarousel2-2.2.1/owl.theme.default.css" />
-  <link rel="stylesheet" type="text/css"
-    href="https://edforthtutors.com/static/plugins/OwlCarousel2-2.2.1/animate.css" />
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <!-- OwlCarousel -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WJLNGJZE72"></script>
   <script>
@@ -42,10 +39,9 @@ EdForth Tutors
   <!-- End Google Analytics -->
   <script src="https://kit.fontawesome.com/f3ecb6aa98.js" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script src="https://edforthtutors.com/static/plugins/OwlCarousel2-2.2.1/owl.carousel.min.js"></script>
-  
-<link rel="stylesheet" type="text/css" href="https://edforthtutors.com/static/css/main_styles.css" />
-<link rel="stylesheet" type="text/css" href="https://edforthtutors.com/static/css/responsive.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" type="text/css" href="<?php echo URLROOT; ?>/css/main_styles.css" />
 
   <!-- POSTHOG -->
   <script>
