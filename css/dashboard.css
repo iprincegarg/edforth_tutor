@@ -376,3 +376,52 @@
 .tutor-filter-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .tutor-filter-chip { display: inline-flex; align-items: center; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; line-height: 1.2; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .tutor-filter-chip-more { background-color: var(--bg-color); color: var(--text-muted); font-weight: 600; border-style: dashed; }
+
+
+/* Student Form Classes */
+.student-form-container {
+    display: grid;
+    grid-template-columns: 1.5fr 2.5fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.student-form-header { margin-bottom: 2rem; }
+.student-form-tabs { border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+.student-form-content { width: 100%; }
+.student-card { max-width: none; }
+.student-card-header { border-bottom: 1px solid var(--border-color); padding: 0.5rem 0.7rem; }
+.student-card-title { margin: 0; color: var(--text-main); font-size: 1rem; font-weight: 600; }
+.student-card-body { padding: 0.5rem; }
+.student-form-group { margin-bottom: 1.5rem; }
+.student-char-count { color: var(--text-muted); display: block; margin-top: 0.5rem; font-size: 0.8rem; text-align: right; }
+.student-btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.student-btn-submit { flex: 1; min-width: 120px; }
+.student-btn-cancel { display: none; background: #e5e7eb; color: #374151; border: 1px solid #d1d5db; flex: 1; min-width: 80px; }
+.student-sections-list-card { display: flex; flex-direction: column; max-height: calc(100vh - 250px); min-height: 400px; max-width: none; }
+.student-sections-header { border-bottom: 1px solid var(--border-color); padding: 0.5rem 0.7rem; display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); z-index: 10; }
+.student-sections-count { background-color: var(--bg-color); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; color: var(--primary-color); }
+.student-sections-container { overflow-y: auto; flex: 1; padding: 0; }
+.student-sections-empty { padding: 3rem; text-align: center; }
+.student-sections-empty-text { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
+.student-sections-table { width: 100%; border-collapse: collapse; }
+.student-sections-thead { position: sticky; top: 0; background: var(--card-bg); box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 5; }
+.student-sections-th-empty { width: 40px; padding: 1rem 0.5rem 1rem 1.5rem; }
+.student-sections-th { text-align: left; padding: 1rem 1.5rem; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.student-sections-th-actions { text-align: right; padding: 1rem 1.5rem; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.student-sections-tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
+.student-sections-td { padding: 1.25rem 1.5rem; font-weight: 500; color: var(--text-main); }
+.student-sections-td-actions { padding: 1.25rem 1.5rem; text-align: right; }
+.action-btn-edit { background: none; border: none; cursor: pointer; padding: 0.5rem; color: #3b82f6; transition: transform 0.1s; }
+.action-btn-delete { background: none; border: none; cursor: pointer; padding: 0.5rem; color: #ef4444; transition: transform 0.1s; }
+.action-form-inline { display: inline; }
+.student-manage-card { padding: 2rem; max-width: none; }
+.student-manage-title { margin-bottom: 0.5rem; color: var(--text-main); font-size: 1.2rem; }
+.student-manage-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+.input-max-400 { max-width: 400px; }
+.input-grid-800 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 800px; }
+
+
+.student-filter-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.student-filter-chip { display: inline-flex; align-items: center; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; line-height: 1.2; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.student-filter-chip-more { background-color: var(--bg-color); color: var(--text-muted); font-weight: 600; border-style: dashed; }

@@ -65,6 +65,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="<?php echo URLROOT; ?>/settings/student_form" class="sidebar-link">
+                            Student Form
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?php echo URLROOT; ?>/settings/front_cms" class="sidebar-link">
                             Front CMS
                         </a>

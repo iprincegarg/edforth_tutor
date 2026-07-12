@@ -1,11 +1,11 @@
 <?php
-class RegisterAsTutorController extends Controller {
+class RegisterAsStudentController extends Controller {
     private $sectionModel;
     private $fieldModel;
 
     public function __construct() {
-        $this->sectionModel = $this->model('Section');
-        $this->fieldModel = $this->model('FormField');
+        $this->sectionModel = $this->model('StudentSection');
+        $this->fieldModel = $this->model('StudentFormField');
     }
 
     public function index() {
@@ -22,19 +22,19 @@ class RegisterAsTutorController extends Controller {
         }
         
         $data = [
-            'title' => 'Register as Tutor',
+            'title' => 'Register as Student',
             'sections' => $sections,
             'fields' => $formFields
         ];
 
-        $this->view('register_as_tutor/index', $data);
+        $this->view('register_as_student/index', $data);
     }
 
     public function submit() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $submissionModel = $this->model('TutorSubmission');
+            $submissionModel = $this->model('StudentSubmission');
             $formData = [];
-            $uploadDir = '../public/uploads/tutors/';
+            $uploadDir = '../public/uploads/students/';
 
             // Make directory if it doesn't exist
             if (!is_dir($uploadDir)) {
@@ -88,7 +88,7 @@ class RegisterAsTutorController extends Controller {
 
                 if ($isDuplicate) {
                     $_SESSION['form_error'] = 'An account with this email already exists and is verified.';
-                    header('Location: ' . URLROOT . '/register-as-tutor');
+                    header('Location: ' . URLROOT . '/register-as-student');
                     exit;
                 }
             }
@@ -102,11 +102,11 @@ class RegisterAsTutorController extends Controller {
                         $maxSize = 5 * 1024 * 1024; // 5MB
 
                         if (in_array($ext, $allowedExtensions) && $file['size'] <= $maxSize) {
-                            $newFilename = uniqid('tutor_') . '_' . time() . '.' . $ext;
+                            $newFilename = uniqid('student_') . '_' . time() . '.' . $ext;
                             $destination = $uploadDir . $newFilename;
                             
                             if (move_uploaded_file($file['tmp_name'], $destination)) {
-                                $formData[$key] = 'uploads/tutors/' . $newFilename;
+                                $formData[$key] = 'uploads/students/' . $newFilename;
                             }
                         }
                     }
@@ -116,15 +116,28 @@ class RegisterAsTutorController extends Controller {
             $jsonData = json_encode($formData);
             
             if ($submissionModel->addSubmission($jsonData)) {
+                // Generate credentials for the student
+                $userModel = $this->model('User');
+                $username = 'STU' . rand(10000, 99999);
+                $password = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'), 0, 10);
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                
+                // Create user
+                $userModel->createUser($username, $hashedPassword, 'student', 1);
+
                 $_SESSION['form_success'] = 'Your application has been successfully submitted!';
+                $_SESSION['new_credentials'] = [
+                    'username' => $username,
+                    'password' => $password
+                ];
             } else {
                 $_SESSION['form_error'] = 'An error occurred while submitting your application. Please try again.';
             }
 
-            header('Location: ' . URLROOT . '/register-as-tutor');
+            header('Location: ' . URLROOT . '/register-as-student');
             exit;
         } else {
-            header('Location: ' . URLROOT . '/register-as-tutor');
+            header('Location: ' . URLROOT . '/register-as-student');
             exit;
         }
     }

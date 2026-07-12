@@ -6,6 +6,9 @@ class SettingsController extends Controller {
     private $submissionModel;
     private $userModel;
     private $settingModel;
+    private $studentSectionModel;
+    private $studentFieldModel;
+    private $studentSubmissionModel;
 
     public function __construct() {
         if(!isLoggedIn()) {
@@ -16,6 +19,9 @@ class SettingsController extends Controller {
         $this->filterModel = $this->model('Filter');
         $this->fieldModel = $this->model('FormField');
         $this->settingModel = $this->model('Setting');
+        $this->studentSectionModel = $this->model('StudentSection');
+        $this->studentFieldModel = $this->model('StudentFormField');
+        $this->studentSubmissionModel = $this->model('StudentSubmission');
     }
 
     public function index() {
@@ -337,10 +343,15 @@ class SettingsController extends Controller {
                 exit;
             } elseif($action === 'delete_field') {
                 $id = $_POST['field_id'] ?? 0;
-                if($this->fieldModel->deleteField($id)) {
-                    $_SESSION['success_msg'] = 'Field deleted successfully!';
+                $field = $this->fieldModel->getFieldById($id);
+                if($field && isset($field->is_deletable) && $field->is_deletable == 0) {
+                    $_SESSION['field_err'] = 'This field cannot be deleted.';
                 } else {
-                    $_SESSION['field_err'] = 'Could not delete field.';
+                    if($this->fieldModel->deleteField($id)) {
+                        $_SESSION['success_msg'] = 'Field deleted successfully!';
+                    } else {
+                        $_SESSION['field_err'] = 'Could not delete field.';
+                    }
                 }
                 header('Location: ' . URLROOT . '/settings/tutor_form#form');
                 exit;
@@ -348,5 +359,195 @@ class SettingsController extends Controller {
         }
 
         $this->view('settings/tutor_form', $data);
+    }
+
+    public function student_form() {
+        if(!hasPermission('student_form')) {
+            // Permission check
+        }
+
+        $sections = $this->studentSectionModel->getSections();
+        $sectionCount = $this->studentSectionModel->getSectionCount();
+        $fields = $this->studentFieldModel->getFieldsWithDetails();
+
+        $data = [
+            'title' => 'Student Details Form',
+            'sections' => $sections,
+            'sectionCount' => $sectionCount,
+            'fields' => $fields,
+            'section_name' => $_SESSION['section_name'] ?? '',
+            'section_err' => $_SESSION['section_err'] ?? '',
+            'field_err' => $_SESSION['field_err'] ?? '',
+            'field_form_data' => $_SESSION['field_form_data'] ?? [],
+            'success_msg' => $_SESSION['success_msg'] ?? ''
+        ];
+
+        unset($_SESSION['section_name']);
+        unset($_SESSION['section_err']);
+        unset($_SESSION['field_err']);
+        unset($_SESSION['field_form_data']);
+        unset($_SESSION['success_msg']);
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $action = $_POST['action'] ?? '';
+
+            if($action === 'add_section') {
+                $data['section_name'] = trim($_POST['section_name'] ?? '');
+
+                if(empty($data['section_name'])) {
+                    $data['section_err'] = 'Please enter a section name.';
+                } elseif(strlen($data['section_name']) > 30) {
+                    $data['section_err'] = 'Section name cannot exceed 30 characters.';
+                } elseif($sectionCount >= 10) {
+                    $data['section_err'] = 'Maximum limit of 10 sections reached.';
+                }
+
+                if(empty($data['section_err'])) {
+                    if($this->studentSectionModel->addSection($data['section_name'])) {
+                        $_SESSION['success_msg'] = 'Section added successfully!';
+                    } else {
+                        $_SESSION['section_err'] = 'Something went wrong.';
+                        $_SESSION['section_name'] = $data['section_name'];
+                    }
+                } else {
+                    $_SESSION['section_err'] = $data['section_err'];
+                    $_SESSION['section_name'] = $data['section_name'];
+                }
+                header('Location: ' . URLROOT . '/settings/student_form');
+                exit;
+            } elseif($action === 'edit_section') {
+                $id = $_POST['section_id'] ?? 0;
+                $name = trim($_POST['section_name'] ?? '');
+
+                if(empty($name)) {
+                    $data['section_err'] = 'Section name cannot be empty.';
+                } elseif(strlen($name) > 30) {
+                    $data['section_err'] = 'Section name cannot exceed 30 characters.';
+                }
+
+                if(empty($data['section_err'])) {
+                    if($this->studentSectionModel->updateSection($id, $name)) {
+                        $_SESSION['success_msg'] = 'Section updated successfully!';
+                    } else {
+                        $_SESSION['section_err'] = 'Something went wrong.';
+                    }
+                } else {
+                    $_SESSION['section_err'] = $data['section_err'];
+                }
+                header('Location: ' . URLROOT . '/settings/student_form');
+                exit;
+            } elseif($action === 'delete_section') {
+                $id = $_POST['section_id'] ?? 0;
+                if($this->studentSectionModel->deleteSection($id)) {
+                    $_SESSION['success_msg'] = 'Section deleted successfully!';
+                } else {
+                    $_SESSION['section_err'] = 'Could not delete section (it may be protected).';
+                }
+                header('Location: ' . URLROOT . '/settings/student_form');
+                exit;
+            } elseif($action === 'reorder_sections') {
+                $order = $_POST['order'] ?? [];
+                if (!empty($order) && is_array($order)) {
+                    foreach ($order as $index => $id) {
+                        $this->studentSectionModel->updateSectionOrder((int)$id, (int)$index);
+                    }
+                    echo json_encode(['status' => 'success']);
+                    exit;
+                }
+            } elseif($action === 'reorder_fields') {
+                $order = $_POST['order'] ?? [];
+                if (!empty($order) && is_array($order)) {
+                    foreach ($order as $index => $id) {
+                        $this->studentFieldModel->updateSequence((int)$id, (int)$index);
+                    }
+                    echo json_encode(['status' => 'success']);
+                    exit;
+                }
+            } elseif($action === 'add_field' || $action === 'edit_field') {
+                $fieldData = [
+                    'id' => $_POST['field_id'] ?? 0,
+                    'section_id' => $_POST['section_id'] ?? 0,
+                    'field_name' => trim($_POST['field_name'] ?? ''),
+                    'field_type' => $_POST['field_type'] ?? '',
+                    'char_limit' => !empty($_POST['char_limit']) ? (int)$_POST['char_limit'] : null,
+                    'placeholder_text' => trim($_POST['placeholder_text'] ?? ''),
+                    'field_values' => trim($_POST['field_values'] ?? ''),
+                    'is_required' => isset($_POST['is_required']) && $_POST['is_required'] === '1' ? 1 : 0,
+                    'show_on_form' => isset($_POST['show_on_form']) && $_POST['show_on_form'] === '1' ? 1 : 0,
+                    'show_to_user' => isset($_POST['show_to_user']) && $_POST['show_to_user'] === '1' ? 1 : 0,
+                ];
+
+                if(empty($fieldData['section_id'])) {
+                    $data['field_err'] = 'Please select a section.';
+                } elseif(empty($fieldData['field_name'])) {
+                    $data['field_err'] = 'Please enter a field name.';
+                } elseif(strlen($fieldData['field_name']) > 30) {
+                    $data['field_err'] = 'Field name cannot exceed 30 characters.';
+                } elseif(empty($fieldData['field_type'])) {
+                    $data['field_err'] = 'Please select a field type.';
+                }
+
+                if(empty($data['field_err'])) {
+                    if($fieldData['field_type'] === 'file') {
+                        if($action === 'add_field' && $this->studentFieldModel->countFileFields() >= 5) {
+                            $data['field_err'] = 'Maximum 5 file uploads allowed on the form.';
+                        }
+                    } elseif($fieldData['field_type'] === 'radio' || $fieldData['field_type'] === 'dropdown') {
+                        $valuesArr = array_filter(array_map('trim', explode(',', $fieldData['field_values'])));
+                        if (empty($valuesArr)) {
+                            $data['field_err'] = 'Please provide field values (comma separated).';
+                        } else {
+                            foreach ($valuesArr as $val) {
+                                if (strlen($val) > 50) {
+                                    $data['field_err'] = 'Each value cannot exceed 50 characters.';
+                                    break;
+                                }
+                            }
+                            $fieldData['field_values'] = implode(', ', $valuesArr);
+                        }
+                    }
+                }
+
+                if(empty($data['field_err'])) {
+                    if($action === 'add_field') {
+                        if($this->studentFieldModel->addField($fieldData)) {
+                            $_SESSION['success_msg'] = 'Field added successfully!';
+                        } else {
+                            $data['field_err'] = 'Something went wrong adding the field.';
+                        }
+                    } else {
+                        if($this->studentFieldModel->updateField($fieldData)) {
+                            $_SESSION['success_msg'] = 'Field updated successfully!';
+                        } else {
+                            $data['field_err'] = 'Something went wrong updating the field.';
+                        }
+                    }
+                }
+
+                if(!empty($data['field_err'])) {
+                    $_SESSION['field_err'] = $data['field_err'];
+                    $_SESSION['field_form_data'] = $fieldData;
+                }
+                
+                header('Location: ' . URLROOT . '/settings/student_form#form');
+                exit;
+            } elseif($action === 'delete_field') {
+                $id = $_POST['field_id'] ?? 0;
+                $field = $this->studentFieldModel->getFieldById($id);
+                if($field && isset($field->is_deletable) && $field->is_deletable == 0) {
+                    $_SESSION['field_err'] = 'This field cannot be deleted.';
+                } else {
+                    if($this->studentFieldModel->deleteField($id)) {
+                        $_SESSION['success_msg'] = 'Field deleted successfully!';
+                    } else {
+                        $_SESSION['field_err'] = 'Could not delete field.';
+                    }
+                }
+                header('Location: ' . URLROOT . '/settings/student_form#form');
+                exit;
+            }
+        }
+
+        $this->view('settings/student_form', $data);
     }
 }

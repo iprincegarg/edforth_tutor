@@ -114,7 +114,7 @@ EdForth Tutors
                       <a href="/tutor-portal">Tutor</a>
                     </li>
                     <li class="">
-                      <a href="https://docs.google.com/forms/d/e/1FAIpQLSeMGrJtCmddjrnjPTb7Hhmqc5SfoX-t3_j8_T0mgcIypKsplQ/viewform" target="_blank">Student</a>
+                      <a href="<?php echo URLROOT; ?>/student-portal">Student</a>
                     </li>
                     <li class="">
                       <a href="<?php echo URLROOT; ?>/find-tutor" class="btn rounded-pill" style="background-color: #f59e0b; color: white; padding: 6px 18px; font-weight: 600; text-transform: uppercase; font-size: 14px; margin-left: 10px;">Find Tutor</a>

@@ -1,21 +1,18 @@
 <?php require_once APPROOT . '/views/inc/dash_header.php'; ?>
 
 <!-- Top Section: Header and Detached Tab Pills -->
-<div class="tutor-form-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+<div class="student-form-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <!-- Detached Tab Pills -->
-    <ul class="nav-pills tutor-form-tabs" id="tutorFormTabs" style="margin-bottom: 0;">
+    <ul class="nav-pills student-form-tabs" id="studentFormTabs" style="margin-bottom: 0;">
         <li class="nav-item">
             <a class="nav-link active" onclick="switchTab(event, 'sections-tab')">Create Sections</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" onclick="switchTab(event, 'filters-tab')">Create Filters</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" onclick="switchTab(event, 'form-tab')">Create Form</a>
         </li>
     </ul>
     <div>
-        <a href="<?php echo URLROOT; ?>/register-as-tutor" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 14px; line-height: 1.5; border-radius: 4px; white-space: nowrap;">
+        <a href="<?php echo URLROOT; ?>/register-as-student" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 14px; line-height: 1.5; border-radius: 4px; white-space: nowrap;">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             Access Form
         </a>
@@ -47,39 +44,39 @@
 </div>
 
 <!-- Tab Content Area (No Outer Card) -->
-<div class="tab-content tutor-form-content">
+<div class="tab-content student-form-content">
 
     <!-- Create Sections Tab -->
     <div id="sections-tab" class="tab-pane active">
 
         <!-- Two-Column Layout -->
-        <div class="tutor-form-container">
+        <div class="student-form-container">
 
             <!-- Left: Create Section Card -->
-            <div class="card tutor-card">
-                <div class="card-header tutor-card-header">
-                    <h5 id="formTitle" class="tutor-card-title">
+            <div class="card student-card">
+                <div class="card-header student-card-header">
+                    <h5 id="formTitle" class="student-card-title">
                         Add New Form Section</h5>
                 </div>
-                <div class="tutor-card-body">
-                    <form id="sectionForm" action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST">
+                <div class="student-card-body">
+                    <form id="sectionForm" action="<?php echo URLROOT; ?>/settings/student_form" method="POST">
                         <input type="hidden" name="action" id="formAction" value="add_section">
                         <input type="hidden" name="section_id" id="formSectionId" value="">
 
-                        <div class="form-group tutor-form-group">
+                        <div class="form-group student-form-group">
                             <label class="form-label">Section Name</label>
                             <input type="text" name="section_name" id="sectionNameInput" class="form-control"
                                 placeholder="e.g. Educational Background" maxlength="30"
                                 value="<?php echo htmlspecialchars($data['section_name']); ?>">
-                            <small class="tutor-char-count">Max
+                            <small class="student-char-count">Max
                                 30 characters. (<span id="charCount">0</span>/30)</small>
                         </div>
 
-                        <div class="tutor-btn-group">
-                            <button type="submit" id="submitBtn" class="btn btn-primary tutor-btn-submit" <?php echo ($data['sectionCount'] >= 10 && empty($data['section_name'])) ? 'disabled' : ''; ?>>
+                        <div class="student-btn-group">
+                            <button type="submit" id="submitBtn" class="btn btn-primary student-btn-submit" <?php echo ($data['sectionCount'] >= 10 && empty($data['section_name'])) ? 'disabled' : ''; ?>>
                                 <?php echo ($data['sectionCount'] >= 10 && empty($data['section_name'])) ? 'Limit Reached' : 'Add Section'; ?>
                             </button>
-                            <button type="button" id="cancelBtn" class="btn tutor-btn-cancel"
+                            <button type="button" id="cancelBtn" class="btn student-btn-cancel"
                                 onclick="cancelEditMode()">Cancel</button>
                         </div>
                     </form>
@@ -87,32 +84,32 @@
             </div>
 
             <!-- Right: List Section Card with Scroll -->
-            <div class="card tutor-sections-list-card">
-                <div class="card-header tutor-sections-header">
-                    <h5 class="tutor-card-title">Form Sections List</h5>
-                    <span class="tutor-sections-count">
+            <div class="card student-sections-list-card">
+                <div class="card-header student-sections-header">
+                    <h5 class="student-card-title">Form Sections List</h5>
+                    <span class="student-sections-count">
                         <?php echo $data['sectionCount']; ?>/10
                     </span>
                 </div>
 
                 <!-- Scrollable Container -->
-                <div class="tutor-sections-container">
+                <div class="student-sections-container">
                     <?php if (empty($data['sections'])): ?>
-                        <div class="tutor-sections-empty">
-                            <p class="tutor-sections-empty-text">No sections created yet.</p>
+                        <div class="student-sections-empty">
+                            <p class="student-sections-empty-text">No sections created yet.</p>
                         </div>
                     <?php else: ?>
-                        <table class="tutor-sections-table">
-                            <thead class="tutor-sections-thead">
+                        <table class="student-sections-table">
+                            <thead class="student-sections-thead">
                                 <tr>
-                                    <th class="tutor-sections-th-empty"></th>
-                                    <th class="tutor-sections-th">Section Name</th>
-                                    <th class="tutor-sections-th-actions">Actions</th>
+                                    <th class="student-sections-th-empty"></th>
+                                    <th class="student-sections-th">Section Name</th>
+                                    <th class="student-sections-th-actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($data['sections'] as $index => $section): ?>
-                                    <tr class="tutor-sections-tr draggable-row"
+                                    <tr class="student-sections-tr draggable-row"
                                         onmouseover="this.style.backgroundColor='var(--bg-color)'"
                                         onmouseout="this.style.backgroundColor='transparent'" draggable="true"
                                         data-id="<?php echo $section->id; ?>">
@@ -122,10 +119,10 @@
                                                     d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
                                             </svg>
                                         </td>
-                                        <td class="tutor-sections-td">
+                                        <td class="student-sections-td">
                                             <?php echo htmlspecialchars($section->sectionName); ?>
                                         </td>
-                                        <td class="tutor-sections-td-actions">
+                                        <td class="student-sections-td-actions">
                                             <button type="button"
                                                 onclick="editSection(<?php echo $section->id; ?>, '<?php echo addslashes(htmlspecialchars($section->sectionName)); ?>')"
                                                 class="action-btn-edit"
@@ -140,7 +137,7 @@
                                                 </svg>
                                             </button>
                                             <?php if ($section->canDelete): ?>
-                                                <form action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST"
+                                                <form action="<?php echo URLROOT; ?>/settings/student_form" method="POST"
                                                     class="action-form-inline"
                                                     onsubmit="return confirm('Are you sure you want to delete this section?');">
                                                     <input type="hidden" name="action" value="delete_section">
@@ -170,147 +167,20 @@
         </div>
     </div>
 
-    <!-- Create Filters Tab -->
-    <div id="filters-tab" class="tab-pane">
-        <div class="tutor-form-container">
-            <!-- Left: Create Filter Card -->
-            <div class="card tutor-card">
-                <div class="card-header tutor-card-header">
-                    <h5 id="filterFormTitle" class="tutor-card-title">Add New Filter</h5>
-                </div>
-                <div class="tutor-card-body">
-                    <form id="filterForm" action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST">
-                        <input type="hidden" name="action" id="filterFormAction" value="add_filter">
-                        <input type="hidden" name="filter_id" id="filterFormId" value="">
-
-                        <div class="form-group tutor-form-group">
-                            <label class="form-label">Filter Name</label>
-                            <input type="text" name="filter_name" id="filterNameInput" class="form-control"
-                                placeholder="e.g. Preferred Subject" maxlength="25"
-                                value="<?php echo htmlspecialchars($data['filter_name']); ?>">
-                            <small class="tutor-char-count">Max 25 characters. (<span id="filterCharCount">0</span>/25)</small>
-                        </div>
-
-                        <div class="form-group tutor-form-group">
-                            <label class="form-label">Filter Values (Comma Separated)</label>
-                            <textarea name="filter_values" id="filterValuesInput" class="form-control" rows="3"
-                                placeholder="e.g. Math, Science, English"><?php echo htmlspecialchars($data['filter_values']); ?></textarea>
-                            <small class="tutor-char-count">Max 50 values. Max 45 characters per value.</small>
-                        </div>
-
-                        <div class="tutor-btn-group">
-                            <button type="submit" id="filterSubmitBtn" class="btn btn-primary tutor-btn-submit">
-                                Add Filter
-                            </button>
-                            <button type="button" id="filterCancelBtn" class="btn tutor-btn-cancel"
-                                onclick="cancelFilterEditMode()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Right: List Filters Card -->
-            <div class="card tutor-sections-list-card">
-                <div class="card-header tutor-sections-header">
-                    <h5 class="tutor-card-title">Filters List</h5>
-                    <span class="tutor-sections-count">
-                        <?php echo $data['filterCount']; ?>
-                    </span>
-                </div>
-
-                <!-- Scrollable Container -->
-                <div class="tutor-sections-container">
-                    <?php if (empty($data['filters'])): ?>
-                        <div class="tutor-sections-empty">
-                            <p class="tutor-sections-empty-text">No filters created yet.</p>
-                        </div>
-                    <?php else: ?>
-                        <table class="tutor-sections-table">
-                            <thead class="tutor-sections-thead">
-                                <tr>
-                                    <th class="tutor-sections-th" style="width: 30%">Filter Name</th>
-                                    <th class="tutor-sections-th" style="width: 50%">Values</th>
-                                    <th class="tutor-sections-th-actions">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($data['filters'] as $filter): ?>
-                                    <tr class="tutor-sections-tr"
-                                        onmouseover="this.style.backgroundColor='var(--bg-color)'"
-                                        onmouseout="this.style.backgroundColor='transparent'">
-                                        <td class="tutor-sections-td" style="width: 30%">
-                                            <?php echo htmlspecialchars($filter->filterName); ?>
-                                        </td>
-                                        <td class="tutor-sections-td" style="width: 50%; font-size: 0.85rem;">
-                                            <div class="tutor-filter-chips">
-                                                <?php 
-                                                $valuesArr = array_filter(array_map('trim', explode(',', $filter->filterValues)));
-                                                $displayCount = min(count($valuesArr), 5);
-                                                for ($i = 0; $i < $displayCount; $i++) {
-                                                    echo '<span class="tutor-filter-chip">' . htmlspecialchars($valuesArr[$i]) . '</span>';
-                                                }
-                                                if (count($valuesArr) > 5) {
-                                                    echo '<span class="tutor-filter-chip tutor-filter-chip-more">+' . (count($valuesArr) - 5) . '</span>';
-                                                }
-                                                ?>
-                                            </div>
-                                        </td>
-                                        <td class="tutor-sections-td-actions">
-                                            <button type="button"
-                                                onclick="editFilter(<?php echo $filter->id; ?>, '<?php echo addslashes(htmlspecialchars($filter->filterName)); ?>', '<?php echo addslashes(htmlspecialchars($filter->filterValues)); ?>')"
-                                                class="action-btn-edit"
-                                                onmouseover="this.style.transform='scale(1.1)'"
-                                                onmouseout="this.style.transform='scale(1)'" title="Edit Filter">
-                                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                            </button>
-                                            <form action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST"
-                                                class="action-form-inline"
-                                                onsubmit="return confirm('Are you sure you want to delete this filter?');">
-                                                <input type="hidden" name="action" value="delete_filter">
-                                                <input type="hidden" name="filter_id" value="<?php echo $filter->id; ?>">
-                                                <button type="submit"
-                                                    class="action-btn-delete"
-                                                    onmouseover="this.style.transform='scale(1.1)'"
-                                                    onmouseout="this.style.transform='scale(1)'" title="Delete Filter">
-                                                    <svg width="18" height="18" fill="none" stroke="currentColor"
-                                                        stroke-width="2" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                        </path>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Create Form Tab -->
     <div id="form-tab" class="tab-pane">
-        <div class="tutor-form-container">
+        <div class="student-form-container">
             <!-- Left: Create Field Card -->
-            <div class="card tutor-card">
-                <div class="card-header tutor-card-header">
-                    <h5 id="fieldFormTitle" class="tutor-card-title">Add New Field</h5>
+            <div class="card student-card">
+                <div class="card-header student-card-header">
+                    <h5 id="fieldFormTitle" class="student-card-title">Add New Field</h5>
                 </div>
-                <div class="tutor-card-body">
-                    <form id="fieldForm" action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST">
+                <div class="student-card-body">
+                    <form id="fieldForm" action="<?php echo URLROOT; ?>/settings/student_form" method="POST">
                         <input type="hidden" name="action" id="fieldFormAction" value="add_field">
                         <input type="hidden" name="field_id" id="fieldFormId" value="">
 
-                        <div class="form-group tutor-form-group">
+                        <div class="form-group student-form-group">
                             <label class="form-label">Assign to Section <span style="color:red">*</span></label>
                             <select name="section_id" id="fieldSectionId" class="form-control" required>
                                 <option value="" disabled selected>Select a section...</option>
@@ -324,20 +194,20 @@
                             </select>
                         </div>
 
-                        <div class="form-group tutor-form-group">
+                        <div class="form-group student-form-group">
                             <label class="form-label">Field Name <span style="color:red">*</span></label>
                             <input type="text" name="field_name" id="fieldNameInput" class="form-control"
                                 placeholder="e.g. Years of Experience" maxlength="30"
                                 value="<?php echo htmlspecialchars($data['field_form_data']['field_name'] ?? ''); ?>" required>
-                            <small class="tutor-char-count">Max 30 characters. (<span id="fieldCharCount">0</span>/30)</small>
+                            <small class="student-char-count">Max 30 characters. (<span id="fieldCharCount">0</span>/30)</small>
                         </div>
 
-                        <div class="form-group tutor-form-group">
+                        <div class="form-group student-form-group">
                             <label class="form-label">Field Type <span style="color:red">*</span></label>
                             <select name="field_type" id="fieldTypeSelect" class="form-control" onchange="onFieldTypeChange()" required>
                                 <option value="" disabled selected>Select a field type...</option>
                                 <?php 
-                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'filter' => 'Filter Option', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection'];
+                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection'];
                                 $selectedType = $data['field_form_data']['field_type'] ?? '';
                                 foreach ($types as $val => $label) {
                                     $sel = ($selectedType === $val) ? 'selected' : '';
@@ -347,43 +217,28 @@
                             </select>
                         </div>
 
-                        <!-- Dynamic Config: Filter -->
-                        <div class="form-group tutor-form-group dynamic-config" id="config-filter" style="display:none;">
-                            <label class="form-label">Select Filter Source <span style="color:red">*</span></label>
-                            <select name="filter_id" id="fieldFilterId" class="form-control">
-                                <option value="" disabled selected>Select a filter...</option>
-                                <?php if (!empty($data['filters'])): ?>
-                                    <?php foreach ($data['filters'] as $filter): ?>
-                                        <option value="<?php echo $filter->id; ?>" <?php echo (isset($data['field_form_data']['filter_id']) && $data['field_form_data']['filter_id'] == $filter->id) ? 'selected' : ''; ?>><?php echo htmlspecialchars($filter->filterName); ?></option>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <option value="" disabled>No filters available.</option>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-
                         <!-- Dynamic Config: Placeholder -->
-                        <div class="form-group tutor-form-group dynamic-config" id="config-placeholder" style="display:none;">
+                        <div class="form-group student-form-group dynamic-config" id="config-placeholder" style="display:none;">
                             <label class="form-label">Placeholder Text</label>
                             <input type="text" name="placeholder_text" id="fieldPlaceholderText" class="form-control" placeholder="e.g. Enter your experience..." value="<?php echo htmlspecialchars($data['field_form_data']['placeholder_text'] ?? ''); ?>">
                         </div>
 
                         <!-- Dynamic Config: Field Values -->
-                        <div class="form-group tutor-form-group dynamic-config" id="config-values" style="display:none;">
+                        <div class="form-group student-form-group dynamic-config" id="config-values" style="display:none;">
                             <label class="form-label">Field Values (Comma Separated) <span style="color:red">*</span></label>
                             <textarea name="field_values" id="fieldValuesInput" class="form-control" rows="2" placeholder="e.g. Option 1, Option 2, Option 3"><?php echo htmlspecialchars($data['field_form_data']['field_values'] ?? ''); ?></textarea>
-                            <small class="tutor-char-count" style="text-align: left;">Limit: Max 50 characters per value.</small>
+                            <small class="student-char-count" style="text-align: left;">Limit: Max 50 characters per value.</small>
                         </div>
 
                         <!-- Dynamic Config: Char Limit -->
-                        <div class="form-group tutor-form-group dynamic-config" id="config-charlimit" style="display:none;">
+                        <div class="form-group student-form-group dynamic-config" id="config-charlimit" style="display:none;">
                             <label class="form-label">Character Limit (Optional)</label>
                             <input type="number" name="char_limit" id="fieldCharLimit" class="form-control" placeholder="e.g. 100" min="1" value="<?php echo htmlspecialchars($data['field_form_data']['char_limit'] ?? ''); ?>">
-                            <small class="tutor-char-count" style="text-align: left;">Leave blank for default limits.</small>
+                            <small class="student-char-count" style="text-align: left;">Leave blank for default limits.</small>
                         </div>
 
                         <!-- Dynamic Config: File Note -->
-                        <div class="form-group tutor-form-group dynamic-config" id="config-file" style="display:none;">
+                        <div class="form-group student-form-group dynamic-config" id="config-file" style="display:none;">
                             <div style="background-color: #f3f4f6; border-left: 4px solid #6b7280; padding: 0.75rem; border-radius: 4px; font-size: 0.85rem; color: #374151;">
                                 <strong>File Upload Settings:</strong><br>
                                 Accepts: pdf, png, jpg, jpeg, zip<br>
@@ -393,7 +248,7 @@
                         </div>
                         
                         <!-- Toggle Settings -->
-                        <div class="tutor-form-group" style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                        <div class="student-form-group" style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
                             <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 500; cursor: pointer;">
                                 <span>Is Required?</span>
                                 <input type="checkbox" name="is_required" id="fieldIsRequired" value="1" <?php echo (!isset($data['field_form_data']) || !empty($data['field_form_data']['is_required'])) ? 'checked' : ''; ?>>
@@ -408,44 +263,44 @@
                             </label>
                         </div>
 
-                        <div class="tutor-btn-group" style="margin-top: 1.5rem;">
-                            <button type="submit" id="fieldSubmitBtn" class="btn btn-primary tutor-btn-submit">Add Field</button>
-                            <button type="button" id="fieldCancelBtn" class="btn tutor-btn-cancel" onclick="cancelFieldEditMode()">Cancel</button>
+                        <div class="student-btn-group" style="margin-top: 1.5rem;">
+                            <button type="submit" id="fieldSubmitBtn" class="btn btn-primary student-btn-submit">Add Field</button>
+                            <button type="button" id="fieldCancelBtn" class="btn student-btn-cancel" onclick="cancelFieldEditMode()">Cancel</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Right: List Fields Card -->
-            <div class="card tutor-sections-list-card">
-                <div class="card-header tutor-sections-header">
-                    <h5 class="tutor-card-title">Form Fields List</h5>
-                    <span class="tutor-sections-count">
+            <div class="card student-sections-list-card">
+                <div class="card-header student-sections-header">
+                    <h5 class="student-card-title">Form Fields List</h5>
+                    <span class="student-sections-count">
                         <?php echo count($data['fields']); ?>
                     </span>
                 </div>
 
                 <!-- Scrollable Container -->
-                <div class="tutor-sections-container">
+                <div class="student-sections-container">
                     <?php if (empty($data['fields'])): ?>
-                        <div class="tutor-sections-empty">
-                            <p class="tutor-sections-empty-text">No fields created yet.</p>
+                        <div class="student-sections-empty">
+                            <p class="student-sections-empty-text">No fields created yet.</p>
                         </div>
                     <?php else: ?>
-                        <table class="tutor-sections-table">
-                            <thead class="tutor-sections-thead">
+                        <table class="student-sections-table">
+                            <thead class="student-sections-thead">
                                 <tr>
-                                    <th class="tutor-sections-th-empty"></th>
-                                    <th class="tutor-sections-th" style="width: 20%">Section</th>
-                                    <th class="tutor-sections-th" style="width: 25%">Field Name</th>
-                                    <th class="tutor-sections-th" style="width: 15%">Type</th>
-                                    <th class="tutor-sections-th" style="width: 25%">Details</th>
-                                    <th class="tutor-sections-th-actions">Actions</th>
+                                    <th class="student-sections-th-empty"></th>
+                                    <th class="student-sections-th" style="width: 20%">Section</th>
+                                    <th class="student-sections-th" style="width: 25%">Field Name</th>
+                                    <th class="student-sections-th" style="width: 15%">Type</th>
+                                    <th class="student-sections-th" style="width: 25%">Details</th>
+                                    <th class="student-sections-th-actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($data['fields'] as $field): ?>
-                                    <tr class="tutor-sections-tr draggable-field-row"
+                                    <tr class="student-sections-tr draggable-field-row"
                                         onmouseover="this.style.backgroundColor='var(--bg-color)'"
                                         onmouseout="this.style.backgroundColor='transparent'" draggable="true"
                                         data-id="<?php echo $field->id; ?>">
@@ -454,21 +309,21 @@
                                                 <path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
                                             </svg>
                                         </td>
-                                        <td class="tutor-sections-td" style="font-size: 0.85rem; width: 20%">
+                                        <td class="student-sections-td" style="font-size: 0.85rem; width: 20%">
                                             <?php echo htmlspecialchars($field->sectionName); ?>
                                         </td>
-                                        <td class="tutor-sections-td" style="width: 25%">
+                                        <td class="student-sections-td" style="width: 25%">
                                             <?php echo htmlspecialchars($field->field_name); ?>
                                             <?php if ($field->is_required): ?>
                                                 <span style="color:red; font-size:0.8rem; margin-left: 2px;">*</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="tutor-sections-td" style="width: 15%; font-size: 0.85rem;">
+                                        <td class="student-sections-td" style="width: 15%; font-size: 0.85rem;">
                                             <span style="background: #eef2ff; color: #4f46e5; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: capitalize;">
                                                 <?php echo htmlspecialchars($field->field_type); ?>
                                             </span>
                                         </td>
-                                        <td class="tutor-sections-td" style="width: 25%; font-size: 0.8rem; color: var(--text-muted);">
+                                        <td class="student-sections-td" style="width: 25%; font-size: 0.8rem; color: var(--text-muted);">
                                             <?php if ($field->field_type === 'filter'): ?>
                                                 Filter: <?php echo htmlspecialchars($field->filterName ?? 'Unknown'); ?>
                                             <?php elseif ($field->field_type === 'radio' || $field->field_type === 'dropdown'): ?>
@@ -482,7 +337,7 @@
                                                 Max 5MB
                                             <?php endif; ?>
                                         </td>
-                                        <td class="tutor-sections-td-actions">
+                                        <td class="student-sections-td-actions">
                                             <button type="button"
                                                 onclick='editField(<?php echo json_encode($field); ?>)'
                                                 class="action-btn-edit"
@@ -494,7 +349,7 @@
                                                 </svg>
                                             </button>
                                             <?php if (!isset($field->is_deletable) || $field->is_deletable == 1): ?>
-                                            <form action="<?php echo URLROOT; ?>/settings/tutor_form" method="POST"
+                                            <form action="<?php echo URLROOT; ?>/settings/student_form" method="POST"
                                                 class="action-form-inline"
                                                 onsubmit="return confirm('Are you sure you want to delete this field?');">
                                                 <input type="hidden" name="action" value="delete_field">
@@ -740,7 +595,7 @@
                 formData.append(`order[${index}]`, id);
             });
 
-            fetch('<?php echo URLROOT; ?>/settings/tutor_form', {
+            fetch('<?php echo URLROOT; ?>/settings/student_form', {
                 method: 'POST',
                 body: formData
             })
