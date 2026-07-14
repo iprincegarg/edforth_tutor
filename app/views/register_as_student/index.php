@@ -411,6 +411,9 @@
                                         <?php endforeach; ?>
                                     </select>
                                     
+                                <?php elseif($field->field_type === 'date'): ?>
+                                    <input type="date" id="<?php echo $fieldId; ?>" name="<?php echo $fieldName; ?>" class="form-control" <?php echo $required; ?>>
+                                    
                                 <?php elseif($field->field_type === 'file'): ?>
                                     <div class="file-upload-wrapper">
                                         <input type="file" id="<?php echo $fieldId; ?>" name="<?php echo $fieldName; ?>" class="file-upload-input" accept=".pdf,.png,.jpg,.jpeg,.zip" <?php echo $required; ?>>

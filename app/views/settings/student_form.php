@@ -207,7 +207,7 @@
                             <select name="field_type" id="fieldTypeSelect" class="form-control" onchange="onFieldTypeChange()" required>
                                 <option value="" disabled selected>Select a field type...</option>
                                 <?php 
-                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection'];
+                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection', 'date' => 'Date Picker'];
                                 $selectedType = $data['field_form_data']['field_type'] ?? '';
                                 foreach ($types as $val => $label) {
                                     $sel = ($selectedType === $val) ? 'selected' : '';
