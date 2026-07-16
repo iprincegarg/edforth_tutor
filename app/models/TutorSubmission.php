@@ -22,6 +22,12 @@ class TutorSubmission {
         return $this->db->resultSet();
     }
 
+    public function getSubmissionById($id) {
+        $this->db->query('SELECT * FROM tutors_form WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
     public function getPaginatedSubmissions($status, $search = '', $limit = 25, $offset = 0, $activeFilters = []) {
         $sql = 'SELECT * FROM tutors_form WHERE ';
         if ($status === 'processed') {

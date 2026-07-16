@@ -17,6 +17,12 @@ class User {
         return $this->db->execute();
     }
 
+    public function getUserByUsername($username) {
+        $this->db->query('SELECT * FROM user WHERE username = :username');
+        $this->db->bind(':username', $username);
+        return $this->db->single();
+    }
+
     // Login user
     public function login($email, $password, $role) {
         // Here we use username for email input as per the request spec where username=admin

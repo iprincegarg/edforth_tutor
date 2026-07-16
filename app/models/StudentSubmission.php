@@ -6,9 +6,11 @@ class StudentSubmission {
         $this->db = new Database;
     }
 
-    public function addSubmission($jsonData) {
-        $this->db->query('INSERT INTO students_form (form_data) VALUES (:form_data)');
+    public function addSubmission($jsonData, $username = null, $password = null) {
+        $this->db->query('INSERT INTO students_form (form_data, username, raw_password) VALUES (:form_data, :username, :raw_password)');
         $this->db->bind(':form_data', $jsonData);
+        $this->db->bind(':username', $username);
+        $this->db->bind(':raw_password', $password);
         
         if($this->db->execute()) {
             return true;
@@ -20,6 +22,12 @@ class StudentSubmission {
     public function getAllSubmissions() {
         $this->db->query('SELECT * FROM students_form ORDER BY created_at DESC');
         return $this->db->resultSet();
+    }
+
+    public function getSubmissionById($id) {
+        $this->db->query('SELECT * FROM students_form WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->single();
     }
 
     public function getPaginatedSubmissions($status, $search = '', $limit = 25, $offset = 0) {

@@ -1,5 +1,5 @@
 <?php
-class TutorsController extends Controller {
+class StudentsController extends Controller {
     private $submissionModel;
     private $userModel;
     private $fieldModel;
@@ -11,18 +11,17 @@ class TutorsController extends Controller {
             header('Location: ' . URLROOT . '/superadmin/login');
             exit;
         }
-        $this->submissionModel = $this->model('TutorSubmission');
+        $this->submissionModel = $this->model('StudentSubmission');
         $this->userModel = $this->model('User');
-        $this->fieldModel = $this->model('FormField');
-        $this->filterModel = $this->model('Filter');
+        $this->fieldModel = $this->model('StudentFormField');
         require_once APPROOT . '/helpers/MailHelper.php';
     }
 
     public function index() {
         $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-        $t_page = isset($_GET['t_page']) ? (int)$_GET['t_page'] : 1;
+        $st_page = isset($_GET['st_page']) ? (int)$_GET['st_page'] : 1;
         $s_page = isset($_GET['s_page']) ? (int)$_GET['s_page'] : 1;
-        if ($t_page < 1) $t_page = 1;
+        if ($st_page < 1) $st_page = 1;
         if ($s_page < 1) $s_page = 1;
 
         // Collect active filter selections (field_id => value)
@@ -35,11 +34,11 @@ class TutorsController extends Controller {
         }
 
         $limit = 25;
-        $t_offset = ($t_page - 1) * $limit;
+        $t_offset = ($st_page - 1) * $limit;
         $s_offset = ($s_page - 1) * $limit;
 
-        $tutorSubmissions = $this->submissionModel->getPaginatedSubmissions('processed', $search, $limit, $t_offset, $activeFilters);
-        $totalTutors = $this->submissionModel->getTotalSubmissions('processed', $search, $activeFilters);
+        $studentSubmissions = $this->submissionModel->getPaginatedSubmissions('processed', $search, $limit, $t_offset);
+        $totalStudents = $this->submissionModel->getTotalSubmissions('processed', $search);
         
         $pendingSubmissions = $this->submissionModel->getPaginatedSubmissions('pending', $search, $limit, $s_offset);
         $totalPending = $this->submissionModel->getTotalSubmissions('pending', $search);
@@ -52,11 +51,11 @@ class TutorsController extends Controller {
         });
         
         $data = [
-            'title' => 'Tutor Applications',
-            'tutorSubmissions' => $tutorSubmissions,
-            'totalTutors' => $totalTutors,
-            't_page' => $t_page,
-            't_totalPages' => ceil($totalTutors / $limit),
+            'title' => 'Student Applications',
+            'studentSubmissions' => $studentSubmissions,
+            'totalStudents' => $totalStudents,
+            'st_page' => $st_page,
+            'st_totalPages' => ceil($totalStudents / $limit),
             'pendingSubmissions' => $pendingSubmissions,
             'totalPending' => $totalPending,
             's_page' => $s_page,
@@ -72,7 +71,7 @@ class TutorsController extends Controller {
         unset($_SESSION['success_msg']);
         unset($_SESSION['field_err']);
 
-        $this->view('tutors/index', $data);
+        $this->view('students/index', $data);
     }
 
     public function approve_submission() {
@@ -82,11 +81,18 @@ class TutorsController extends Controller {
             $password = $_POST['password'] ?? '';
 
             if(empty($username) || empty($password)) {
-                $_SESSION['field_err'] = 'Username and password are required to approve the tutor.';
+                $_SESSION['field_err'] = 'Username and password are required to approve the student.';
             } else {
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 
-                if($this->userModel->createUser($username, $hashedPassword, 'tutor', 1)) {
+                $userExists = $this->userModel->getUserByUsername($username);
+                if($userExists) {
+                    $userCreated = $this->userModel->updateUserCredentials($username, $username, $hashedPassword);
+                } else {
+                    $userCreated = $this->userModel->createUser($username, $hashedPassword, 'student', 1);
+                }
+                
+                if($userCreated) {
                     $this->submissionModel->updateStatusAndCredentials($id, 'approved', $username, $password);
                     
                     // Try to send email
@@ -108,17 +114,17 @@ class TutorsController extends Controller {
                     }
                     
                     if ($toEmail && filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
-                        MailHelper::sendCredentials($toEmail, $username, $password, 'tutor');
-                        $_SESSION['success_msg'] = 'Tutor approved, account created, and email sent successfully!';
+                        MailHelper::sendCredentials($toEmail, $username, $password, 'student');
+                        $_SESSION['success_msg'] = 'Student approved, account created, and email sent successfully!';
                     } else {
-                        $_SESSION['success_msg'] = 'Tutor approved and account created successfully! (Could not send email: no valid email field found)';
+                        $_SESSION['success_msg'] = 'Student approved and account created successfully! (Could not send email: no valid email field found)';
                     }
                 } else {
-                    $_SESSION['field_err'] = 'Failed to create tutor account.';
+                    $_SESSION['field_err'] = 'Failed to create student account.';
                 }
             }
         }
-        header('Location: ' . URLROOT . '/tutors');
+        header('Location: ' . URLROOT . '/students');
         exit;
     }
 
@@ -134,17 +140,16 @@ class TutorsController extends Controller {
             } else {
                 $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
                 
-                // Update User table
+                // Update students_form table
                 if($this->userModel->updateUserCredentials($oldUsername, $newUsername, $hashedPassword)) {
-                    // Update tutors_form table
                     $this->submissionModel->updateCredentials($id, $newUsername, $newPassword);
-                    $_SESSION['success_msg'] = 'Tutor credentials updated successfully!';
+                    $_SESSION['success_msg'] = 'Student credentials updated successfully!';
                 } else {
-                    $_SESSION['field_err'] = 'Failed to update tutor credentials.';
+                    $_SESSION['field_err'] = 'Failed to update student credentials.';
                 }
             }
         }
-        header('Location: ' . URLROOT . '/tutors');
+        header('Location: ' . URLROOT . '/students');
         exit;
     }
 
@@ -170,7 +175,7 @@ class TutorsController extends Controller {
                 }
 
                 if ($toEmail && filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
-                    if (MailHelper::sendCredentials($toEmail, $submission->username, $submission->raw_password, 'tutor')) {
+                    if (MailHelper::sendCredentials($toEmail, $submission->username, $submission->raw_password, 'student')) {
                         $_SESSION['success_msg'] = 'Credentials email sent successfully!';
                     } else {
                         $_SESSION['field_err'] = 'Failed to send email via SMTP.';
@@ -182,7 +187,7 @@ class TutorsController extends Controller {
                 $_SESSION['field_err'] = 'Submission or credentials not found.';
             }
         }
-        header('Location: ' . URLROOT . '/tutors');
+        header('Location: ' . URLROOT . '/students');
         exit;
     }
 
@@ -195,7 +200,7 @@ class TutorsController extends Controller {
                 $_SESSION['field_err'] = 'Failed to reject submission.';
             }
         }
-        header('Location: ' . URLROOT . '/tutors');
+        header('Location: ' . URLROOT . '/students');
         exit;
     }
 }

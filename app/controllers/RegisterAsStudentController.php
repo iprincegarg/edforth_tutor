@@ -115,12 +115,13 @@ class RegisterAsStudentController extends Controller {
 
             $jsonData = json_encode($formData);
             
-            if ($submissionModel->addSubmission($jsonData)) {
-                // Generate credentials for the student
-                $userModel = $this->model('User');
-                $username = 'STU' . rand(10000, 99999);
-                $password = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'), 0, 10);
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            // Generate credentials for the student upfront to save in form table
+            $userModel = $this->model('User');
+            $username = 'STU' . rand(10000, 99999);
+            $password = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()'), 0, 10);
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            if ($submissionModel->addSubmission($jsonData, $username, $password)) {
                 
                 // Create user
                 $userModel->createUser($username, $hashedPassword, 'student', 1);

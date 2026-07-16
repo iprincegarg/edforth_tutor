@@ -35,9 +35,9 @@
                     Tutors
                 </a>
             </li>
-            <!-- Users Module (Dummy) -->
+            <!-- Students Module -->
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
+                <a href="<?php echo URLROOT; ?>/students" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/students') !== false ? 'active' : ''; ?>">
                     Students
                 </a>
             </li>

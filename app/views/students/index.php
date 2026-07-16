@@ -4,12 +4,12 @@ $hasActiveFilters = !empty($data['activeFilters']);
 $hasSearch = !empty($data['search']);
 $hasAnyFilter = $hasActiveFilters || $hasSearch;
 ?>
-<div class="tutor-form-header" style="margin-bottom: 1rem;">
+<div class="student-form-header" style="margin-bottom: 1rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-        <h2 style="margin:0; font-size:1.5rem; color:#1e293b;">Tutor Applications</h2>
+        <h2 style="margin:0; font-size:1.5rem; color:#1e293b;">Student Applications</h2>
         
         <!-- Search & Filter Form -->
-        <form action="<?php echo URLROOT; ?>/tutors" method="GET" id="tutorFilterForm" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+        <form action="<?php echo URLROOT; ?>/students" method="GET" id="studentFilterForm" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
             <input type="text" name="search" class="form-control" placeholder="Search by ID or Name..." value="<?php echo htmlspecialchars($data['search'] ?? ''); ?>" style="width: 220px; padding: 0.4rem 0.75rem;">
             
             <?php if (!empty($data['filterFields'])): ?>
@@ -31,7 +31,7 @@ $hasAnyFilter = $hasActiveFilters || $hasSearch;
             
             <button type="submit" class="btn btn-primary" style="width: auto; padding: 0.4rem 1rem;">Filter</button>
             <?php if ($hasAnyFilter): ?>
-                <a href="<?php echo URLROOT; ?>/tutors" class="btn tutor-btn-cancel" style="display:inline-flex; width:auto; text-decoration:none; padding: 0.4rem 1rem;">Clear</a>
+                <a href="<?php echo URLROOT; ?>/students" class="btn student-btn-cancel" style="display:inline-flex; width:auto; text-decoration:none; padding: 0.4rem 1rem;">Clear</a>
             <?php endif; ?>
         </form>
     </div>
@@ -57,8 +57,8 @@ $firstFieldKey = $firstField ? 'field_' . $firstField->id : null;
 $firstFieldName = $firstField ? $firstField->field_name : 'Primary Info';
 
 // Helper function to build pagination URLs
-function buildPaginationUrl($t_page, $s_page, $search) {
-    $url = URLROOT . '/tutors?t_page=' . $t_page . '&s_page=' . $s_page;
+function buildPaginationUrl($st_page, $s_page, $search) {
+    $url = URLROOT . '/students?st_page=' . $st_page . '&s_page=' . $s_page;
     if (!empty($search)) {
         $url .= '&search=' . urlencode($search);
     }
@@ -66,47 +66,47 @@ function buildPaginationUrl($t_page, $s_page, $search) {
 }
 ?>
 
-<div class="tutor-form-container" style="display:block; margin-top:1.5rem;">
+<div class="student-form-container" style="display:block; margin-top:1.5rem;">
     
-    <ul class="nav-pills tutor-form-tabs" id="tutorTabs" style="margin-bottom: 0;">
+    <ul class="nav-pills student-form-tabs" id="studentTabs" style="margin-bottom: 0;">
         <li class="nav-item">
-            <a class="nav-link active" onclick="switchTab(event, 'tutors-tab')">Tutors (<?php echo $data['totalTutors']; ?>)</a>
+            <a class="nav-link active" onclick="switchTab(event, 'Students-tab')">Students (<?php echo $data['totalStudents']; ?>)</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" onclick="switchTab(event, 'submissions-tab')">Submissions (<?php echo $data['totalPending']; ?>)</a>
         </li>
     </ul>
 
-    <div class="tab-content tutor-form-content" style="padding-top: 1.5rem;">
+    <div class="tab-content student-form-content" style="padding-top: 1.5rem;">
         
-        <!-- Tutors Tab (Approved/Rejected) -->
-        <div id="tutors-tab" class="tab-pane active">
-            <div class="card tutor-card" style="width: 100%;">
-                <div class="tutor-card-body" style="overflow-x: auto;">
-                    <?php if (empty($data['tutorSubmissions'])): ?>
-                        <div class="tutor-sections-empty">
-                            <p class="tutor-sections-empty-text">No tutors found.</p>
+        <!-- Students Tab (Approved/Rejected) -->
+        <div id="Students-tab" class="tab-pane active">
+            <div class="card student-card" style="width: 100%;">
+                <div class="student-card-body" style="overflow-x: auto;">
+                    <?php if (empty($data['studentSubmissions'])): ?>
+                        <div class="student-sections-empty">
+                            <p class="student-sections-empty-text">No Students found.</p>
                         </div>
                     <?php else: ?>
-                        <table class="tutor-sections-table" style="width: 100%; min-width: 800px;">
-                            <thead class="tutor-sections-thead">
+                        <table class="student-sections-table" style="width: 100%; min-width: 800px;">
+                            <thead class="student-sections-thead">
                                 <tr>
-                                    <th class="tutor-sections-th" style="width: 10%;">ID</th>
-                                    <th class="tutor-sections-th" style="width: 20%;"><?php echo htmlspecialchars($firstFieldName); ?></th>
-                                    <th class="tutor-sections-th" style="width: 20%;">Status</th>
-                                    <th class="tutor-sections-th" style="width: 20%;">Submitted At</th>
-                                    <th class="tutor-sections-th-actions" style="width: 30%;">Actions</th>
+                                    <th class="student-sections-th" style="width: 10%;">ID</th>
+                                    <th class="student-sections-th" style="width: 20%;"><?php echo htmlspecialchars($firstFieldName); ?></th>
+                                    <th class="student-sections-th" style="width: 20%;">Status</th>
+                                    <th class="student-sections-th" style="width: 20%;">Submitted At</th>
+                                    <th class="student-sections-th-actions" style="width: 30%;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($data['tutorSubmissions'] as $sub): 
+                                <?php foreach ($data['studentSubmissions'] as $sub): 
                                     $fData = json_decode($sub->form_data, true);
                                     $firstVal = ($firstFieldKey && isset($fData[$firstFieldKey])) ? $fData[$firstFieldKey] : 'N/A';
                                 ?>
-                                    <tr class="tutor-sections-tr">
-                                        <td class="tutor-sections-td">#<?php echo htmlspecialchars($sub->id); ?></td>
-                                        <td class="tutor-sections-td" style="font-weight: 600; color: var(--primary-color);"><?php echo htmlspecialchars($firstVal); ?></td>
-                                        <td class="tutor-sections-td">
+                                    <tr class="student-sections-tr">
+                                        <td class="student-sections-td">#<?php echo htmlspecialchars($sub->id); ?></td>
+                                        <td class="student-sections-td" style="font-weight: 600; color: var(--primary-color);"><?php echo htmlspecialchars($firstVal); ?></td>
+                                        <td class="student-sections-td">
                                             <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
                                                 <?php 
                                                 if($sub->status === 'approved') echo 'background: #d1fae5; color: #065f46;';
@@ -117,8 +117,8 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                                 <?php echo htmlspecialchars($sub->status); ?>
                                             </span>
                                         </td>
-                                        <td class="tutor-sections-td" style="font-size: 0.9rem; color: var(--text-muted);"><?php echo htmlspecialchars(date('M j, Y h:i A', strtotime($sub->created_at))); ?></td>
-                                        <td class="tutor-sections-td-actions" style="justify-content: flex-start; gap: 8px;">
+                                        <td class="student-sections-td" style="font-size: 0.9rem; color: var(--text-muted);"><?php echo htmlspecialchars(date('M j, Y h:i A', strtotime($sub->created_at))); ?></td>
+                                        <td class="student-sections-td-actions" style="justify-content: flex-start; gap: 8px;">
                                             <button type="button" class="action-btn-edit" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="View Data" onclick='viewSubmissionData(<?php echo htmlspecialchars(json_encode($sub->form_data), ENT_QUOTES, "UTF-8"); ?>)'>
                                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -138,17 +138,17 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                             </tbody>
                         </table>
                         
-                        <!-- Pagination for Tutors Tab -->
-                        <?php if($data['t_totalPages'] > 1): ?>
+                        <!-- Pagination for Students Tab -->
+                        <?php if($data['st_totalPages'] > 1): ?>
                         <div style="padding: 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Showing page <?php echo $data['t_page']; ?> of <?php echo $data['t_totalPages']; ?></span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Showing page <?php echo $data['st_page']; ?> of <?php echo $data['st_totalPages']; ?></span>
                             <div style="display: flex; gap: 5px;">
-                                <?php if($data['t_page'] > 1): ?>
-                                    <a href="<?php echo buildPaginationUrl($data['t_page'] - 1, $data['s_page'], $data['search']); ?>#tutors" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Prev</a>
+                                <?php if($data['st_page'] > 1): ?>
+                                    <a href="<?php echo buildPaginationUrl($data['st_page'] - 1, $data['s_page'], $data['search']); ?>#Students" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Prev</a>
                                 <?php endif; ?>
                                 
-                                <?php if($data['t_page'] < $data['t_totalPages']): ?>
-                                    <a href="<?php echo buildPaginationUrl($data['t_page'] + 1, $data['s_page'], $data['search']); ?>#tutors" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Next</a>
+                                <?php if($data['st_page'] < $data['st_totalPages']): ?>
+                                    <a href="<?php echo buildPaginationUrl($data['st_page'] + 1, $data['s_page'], $data['search']); ?>#Students" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Next</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -161,21 +161,21 @@ function buildPaginationUrl($t_page, $s_page, $search) {
 
         <!-- Submissions Tab (Pending) -->
         <div id="submissions-tab" class="tab-pane">
-            <div class="card tutor-card" style="width: 100%;">
-                <div class="tutor-card-body" style="overflow-x: auto;">
+            <div class="card student-card" style="width: 100%;">
+                <div class="student-card-body" style="overflow-x: auto;">
                     <?php if (empty($data['pendingSubmissions'])): ?>
-                        <div class="tutor-sections-empty">
-                            <p class="tutor-sections-empty-text">No pending submissions found.</p>
+                        <div class="student-sections-empty">
+                            <p class="student-sections-empty-text">No pending submissions found.</p>
                         </div>
                     <?php else: ?>
-                        <table class="tutor-sections-table" style="width: 100%; min-width: 800px;">
-                            <thead class="tutor-sections-thead">
+                        <table class="student-sections-table" style="width: 100%; min-width: 800px;">
+                            <thead class="student-sections-thead">
                                 <tr>
-                                    <th class="tutor-sections-th" style="width: 10%;">ID</th>
-                                    <th class="tutor-sections-th" style="width: 20%;"><?php echo htmlspecialchars($firstFieldName); ?></th>
-                                    <th class="tutor-sections-th" style="width: 20%;">Status</th>
-                                    <th class="tutor-sections-th" style="width: 20%;">Submitted At</th>
-                                    <th class="tutor-sections-th-actions" style="width: 30%;">Actions</th>
+                                    <th class="student-sections-th" style="width: 10%;">ID</th>
+                                    <th class="student-sections-th" style="width: 20%;"><?php echo htmlspecialchars($firstFieldName); ?></th>
+                                    <th class="student-sections-th" style="width: 20%;">Status</th>
+                                    <th class="student-sections-th" style="width: 20%;">Submitted At</th>
+                                    <th class="student-sections-th-actions" style="width: 30%;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -183,16 +183,16 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                     $fData = json_decode($sub->form_data, true);
                                     $firstVal = ($firstFieldKey && isset($fData[$firstFieldKey])) ? $fData[$firstFieldKey] : 'N/A';
                                 ?>
-                                    <tr class="tutor-sections-tr">
-                                        <td class="tutor-sections-td">#<?php echo htmlspecialchars($sub->id); ?></td>
-                                        <td class="tutor-sections-td" style="font-weight: 600; color: var(--primary-color);"><?php echo htmlspecialchars($firstVal); ?></td>
-                                        <td class="tutor-sections-td">
+                                    <tr class="student-sections-tr">
+                                        <td class="student-sections-td">#<?php echo htmlspecialchars($sub->id); ?></td>
+                                        <td class="student-sections-td" style="font-weight: 600; color: var(--primary-color);"><?php echo htmlspecialchars($firstVal); ?></td>
+                                        <td class="student-sections-td">
                                             <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; background: #fef3c7; color: #92400e;">
                                                 <?php echo htmlspecialchars($sub->status); ?>
                                             </span>
                                         </td>
-                                        <td class="tutor-sections-td" style="font-size: 0.9rem; color: var(--text-muted);"><?php echo htmlspecialchars(date('M j, Y h:i A', strtotime($sub->created_at))); ?></td>
-                                        <td class="tutor-sections-td-actions" style="justify-content: flex-start; gap: 8px;">
+                                        <td class="student-sections-td" style="font-size: 0.9rem; color: var(--text-muted);"><?php echo htmlspecialchars(date('M j, Y h:i A', strtotime($sub->created_at))); ?></td>
+                                        <td class="student-sections-td-actions" style="justify-content: flex-start; gap: 8px;">
                                             <button type="button" class="action-btn-edit" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="View Data" onclick='viewSubmissionData(<?php echo htmlspecialchars(json_encode($sub->form_data), ENT_QUOTES, "UTF-8"); ?>)'>
                                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -200,13 +200,13 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                                 </svg>
                                             </button>
                                             
-                                            <button type="button" class="action-btn-edit" style="color: #10b981;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Approve" onclick="openApproveModal(<?php echo $sub->id; ?>)">
+                                            <button type="button" class="action-btn-edit" style="color: #10b981;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Approve" onclick="openApproveModal(<?php echo $sub->id; ?>, '<?php echo htmlspecialchars($sub->username ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($sub->raw_password ?? '', ENT_QUOTES); ?>')">
                                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                             </button>
                                             
-                                            <form action="<?php echo URLROOT; ?>/tutors/reject_submission" method="POST" style="display:inline;" class="action-form-inline" onsubmit="return confirm('Are you sure you want to reject this submission?');">
+                                            <form action="<?php echo URLROOT; ?>/students/reject_submission" method="POST" style="display:inline;" class="action-form-inline" onsubmit="return confirm('Are you sure you want to reject this submission?');">
                                                 <input type="hidden" name="submission_id" value="<?php echo $sub->id; ?>">
                                                 <button type="submit" class="action-btn-delete" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Reject">
                                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -226,11 +226,11 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                             <span style="font-size: 0.85rem; color: var(--text-muted);">Showing page <?php echo $data['s_page']; ?> of <?php echo $data['s_totalPages']; ?></span>
                             <div style="display: flex; gap: 5px;">
                                 <?php if($data['s_page'] > 1): ?>
-                                    <a href="<?php echo buildPaginationUrl($data['t_page'], $data['s_page'] - 1, $data['search']); ?>#submissions" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Prev</a>
+                                    <a href="<?php echo buildPaginationUrl($data['st_page'], $data['s_page'] - 1, $data['search']); ?>#submissions" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Prev</a>
                                 <?php endif; ?>
                                 
                                 <?php if($data['s_page'] < $data['s_totalPages']): ?>
-                                    <a href="<?php echo buildPaginationUrl($data['t_page'], $data['s_page'] + 1, $data['search']); ?>#submissions" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Next</a>
+                                    <a href="<?php echo buildPaginationUrl($data['st_page'], $data['s_page'] + 1, $data['search']); ?>#submissions" class="btn btn-primary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Next</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -247,24 +247,24 @@ function buildPaginationUrl($t_page, $s_page, $search) {
 <!-- Approve Modal -->
 <div id="approveModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:2rem; border-radius:8px; width:400px; max-width:90%;">
-        <h4 style="margin-top:0; display:flex; justify-content:space-between;">Approve Tutor
+        <h4 style="margin-top:0; display:flex; justify-content:space-between;">Approve Student
             <button type="button" onclick="document.getElementById('approveModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer;">&times;</button>
         </h4>
-        <p style="font-size:0.9rem; color:var(--text-muted);">Please create account credentials for this tutor.</p>
-        <form action="<?php echo URLROOT; ?>/tutors/approve_submission" method="POST">
+        <p style="font-size:0.9rem; color:var(--text-muted);">Please create account credentials for this student.</p>
+        <form action="<?php echo URLROOT; ?>/students/approve_submission" method="POST">
             <input type="hidden" name="submission_id" id="approveSubmissionId" value="">
-            <div class="form-group tutor-form-group">
+            <div class="form-group student-form-group">
                 <label class="form-label">Username</label>
                 <input type="text" name="username" id="approveUsername" class="form-control" maxlength="10" required oninput="document.getElementById('approveUsernameCount').innerText = this.value.length + '/10'">
                 <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="approveUsernameCount">0/10</div>
             </div>
-            <div class="form-group tutor-form-group">
+            <div class="form-group student-form-group">
                 <label class="form-label">Password</label>
                 <input type="password" name="password" id="approvePassword" class="form-control" maxlength="8" required oninput="document.getElementById('approvePasswordCount').innerText = this.value.length + '/8'">
                 <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="approvePasswordCount">0/8</div>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                <button type="button" class="btn tutor-btn-cancel" onclick="document.getElementById('approveModal').style.display='none'">Cancel</button>
+                <button type="button" class="btn student-btn-cancel" onclick="document.getElementById('approveModal').style.display='none'">Cancel</button>
                 <button type="submit" class="btn btn-success" style="background-color:#10b981; color: white;">Create User & Approve</button>
             </div>
         </form>
@@ -277,24 +277,24 @@ function buildPaginationUrl($t_page, $s_page, $search) {
         <h4 style="margin-top:0; display:flex; justify-content:space-between;">Change Credentials
             <button type="button" onclick="document.getElementById('changeCredentialsModal').style.display='none'" style="border:none; background:transparent; font-size:1.2rem; cursor:pointer;">&times;</button>
         </h4>
-        <p style="font-size:0.9rem; color:var(--text-muted);">Update the login credentials for this tutor.</p>
-        <form action="<?php echo URLROOT; ?>/tutors/change_credentials" method="POST" id="changeCredentialsForm">
+        <p style="font-size:0.9rem; color:var(--text-muted);">Update the login credentials for this student.</p>
+        <form action="<?php echo URLROOT; ?>/students/change_credentials" method="POST" id="changeCredentialsForm">
             <input type="hidden" name="submission_id" id="changeCredSubmissionId" value="">
             <input type="hidden" name="old_username" id="oldUsername" value="">
-            <div class="form-group tutor-form-group">
+            <div class="form-group student-form-group">
                 <label class="form-label">Username</label>
                 <input type="text" name="new_username" id="newUsername" class="form-control" maxlength="10" required oninput="document.getElementById('newUsernameCount').innerText = this.value.length + '/10'">
                 <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="newUsernameCount">0/10</div>
             </div>
-            <div class="form-group tutor-form-group">
+            <div class="form-group student-form-group">
                 <label class="form-label">Password</label>
                 <input type="text" name="new_password" id="newPassword" class="form-control" maxlength="8" required oninput="document.getElementById('newPasswordCount').innerText = this.value.length + '/8'">
                 <div style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="newPasswordCount">0/8</div>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                <button type="button" class="btn tutor-btn-cancel" onclick="document.getElementById('changeCredentialsModal').style.display='none'">Cancel</button>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('changeCredentialsForm').action='<?php echo URLROOT; ?>/tutors/send_credentials_mail'; document.getElementById('changeCredentialsForm').submit();" style="background-color:#64748b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Send Credential Mail</button>
-                <button type="submit" class="btn btn-primary" onclick="document.getElementById('changeCredentialsForm').action='<?php echo URLROOT; ?>/tutors/change_credentials';" style="background-color:#3b82f6; color: white;">Save Changes</button>
+                <button type="button" class="btn student-btn-cancel" onclick="document.getElementById('changeCredentialsModal').style.display='none'">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('changeCredentialsForm').action='<?php echo URLROOT; ?>/students/send_credentials_mail'; document.getElementById('changeCredentialsForm').submit();" style="background-color:#64748b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Send Credential Mail</button>
+                <button type="submit" class="btn btn-primary" onclick="document.getElementById('changeCredentialsForm').action='<?php echo URLROOT; ?>/students/change_credentials';" style="background-color:#3b82f6; color: white;">Save Changes</button>
             </div>
         </form>
     </div>
@@ -324,13 +324,13 @@ function buildPaginationUrl($t_page, $s_page, $search) {
     function switchTab(event, tabId) {
         if(event) event.preventDefault();
         
-        const tabs = document.querySelectorAll('.tutor-form-tabs .nav-link');
+        const tabs = document.querySelectorAll('.student-form-tabs .nav-link');
         tabs.forEach(tab => tab.classList.remove('active'));
         
         if(event) {
             event.target.classList.add('active');
         } else {
-            const activeTabLink = document.querySelector(`.tutor-form-tabs .nav-link[onclick*="${tabId}"]`);
+            const activeTabLink = document.querySelector(`.student-form-tabs .nav-link[onclick*="${tabId}"]`);
             if (activeTabLink) activeTabLink.classList.add('active');
         }
         
@@ -341,16 +341,16 @@ function buildPaginationUrl($t_page, $s_page, $search) {
         if(activePane) activePane.classList.add('active');
 
         // Update URL hash without scroll
-        const hash = tabId === 'submissions-tab' ? 'submissions' : 'tutors';
+        const hash = tabId === 'submissions-tab' ? 'submissions' : 'Students';
         history.replaceState(null, null, '#' + hash);
     }
 
-    function openApproveModal(id) {
+    function openApproveModal(id, username = '', password = '') {
         document.getElementById('approveSubmissionId').value = id;
-        document.getElementById('approveUsername').value = '';
-        document.getElementById('approvePassword').value = '';
-        document.getElementById('approveUsernameCount').innerText = '0/10';
-        document.getElementById('approvePasswordCount').innerText = '0/8';
+        document.getElementById('approveUsername').value = username;
+        document.getElementById('approvePassword').value = password;
+        document.getElementById('approveUsernameCount').innerText = (username ? username.length : 0) + '/10';
+        document.getElementById('approvePasswordCount').innerText = (password ? password.length : 0) + '/8';
         document.getElementById('approveModal').style.display = 'flex';
     }
 
