@@ -115,4 +115,16 @@ class User {
         $this->db->query('SELECT id, username FROM user WHERE role = "tutor" AND status = 1');
         return $this->db->resultSet();
     }
+
+    public function toggleStatus($username) {
+        $this->db->query('UPDATE user SET status = IF(status = 1, 0, 1) WHERE username = :username');
+        $this->db->bind(':username', $username);
+        return $this->db->execute();
+    }
+
+    public function deleteUser($username) {
+        $this->db->query('DELETE FROM user WHERE username = :username');
+        $this->db->bind(':username', $username);
+        return $this->db->execute();
+    }
 }

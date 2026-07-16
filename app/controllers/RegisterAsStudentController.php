@@ -1,4 +1,6 @@
 <?php
+require_once APPROOT . '/helpers/MailHelper.php';
+
 class RegisterAsStudentController extends Controller {
     private $sectionModel;
     private $fieldModel;
@@ -124,13 +126,20 @@ class RegisterAsStudentController extends Controller {
             if ($submissionModel->addSubmission($jsonData, $username, $password)) {
                 
                 // Create user
-                $userModel->createUser($username, $hashedPassword, 'student', 1);
+                $userModel->createUser($username, $hashedPassword, 'user', 1);
 
                 $_SESSION['form_success'] = 'Your application has been successfully submitted!';
                 $_SESSION['new_credentials'] = [
                     'username' => $username,
                     'password' => $password
                 ];
+
+                if ($emailFieldId && isset($formData[$emailFieldId])) {
+                    $studentEmail = $formData[$emailFieldId];
+                    if (filter_var($studentEmail, FILTER_VALIDATE_EMAIL)) {
+                        MailHelper::sendCredentials($studentEmail, $username, $password, 'student');
+                    }
+                }
             } else {
                 $_SESSION['form_error'] = 'An error occurred while submitting your application. Please try again.';
             }

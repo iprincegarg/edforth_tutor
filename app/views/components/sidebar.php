@@ -21,6 +21,29 @@
                     My Classes
                 </a>
             </li>
+            </li>
+        <?php elseif(isset($_SESSION['role']) && $_SESSION['role'] === 'student'): ?>
+            <!-- Student Navigation -->
+            <li class="sidebar-item">
+                <a href="<?php echo URLROOT; ?>/student-dashboard" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard') !== false && strpos($_SERVER['REQUEST_URI'], '/tickets') === false && strpos($_SERVER['REQUEST_URI'], '/myClasses') === false && strpos($_SERVER['REQUEST_URI'], '/bookTutor') === false ? 'active' : ''; ?>">
+                    My Profile
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="<?php echo URLROOT; ?>/student-dashboard/bookTutor" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard/bookTutor') !== false ? 'active' : ''; ?>">
+                    Book Tutor
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="<?php echo URLROOT; ?>/student-dashboard/myClasses" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard/myClasses') !== false ? 'active' : ''; ?>">
+                    My Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="<?php echo URLROOT; ?>/student-dashboard/tickets" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard/tickets') !== false ? 'active' : ''; ?>">
+                    My Tickets
+                </a>
+            </li>
         <?php else: ?>
             <!-- Admin Navigation -->
             <!-- Dashboard Module -->
@@ -82,6 +105,10 @@
     <div class="sidebar-bottom">
         <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'tutor'): ?>
             <a href="<?php echo URLROOT; ?>/tutor-portal/logout" class="sidebar-link logout-link">
+                Logout
+            </a>
+        <?php elseif(isset($_SESSION['role']) && $_SESSION['role'] === 'student'): ?>
+            <a href="<?php echo URLROOT; ?>/student-portal/logout" class="sidebar-link logout-link">
                 Logout
             </a>
         <?php else: ?>

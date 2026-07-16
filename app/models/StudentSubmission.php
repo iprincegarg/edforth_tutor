@@ -7,7 +7,7 @@ class StudentSubmission {
     }
 
     public function addSubmission($jsonData, $username = null, $password = null) {
-        $this->db->query('INSERT INTO students_form (form_data, username, raw_password) VALUES (:form_data, :username, :raw_password)');
+        $this->db->query('INSERT INTO students_form (form_data, username, raw_password, status) VALUES (:form_data, :username, :raw_password, "approved")');
         $this->db->bind(':form_data', $jsonData);
         $this->db->bind(':username', $username);
         $this->db->bind(':raw_password', $password);
@@ -31,18 +31,18 @@ class StudentSubmission {
     }
 
     public function getPaginatedSubmissions($status, $search = '', $limit = 25, $offset = 0) {
-        $sql = 'SELECT * FROM students_form WHERE ';
+        $sql = 'SELECT students_form.*, user.status as login_status FROM students_form LEFT JOIN user ON students_form.username = user.username WHERE ';
         if ($status === 'processed') {
-            $sql .= 'status != "pending"';
+            $sql .= 'students_form.status != "pending"';
         } else {
-            $sql .= 'status = :status';
+            $sql .= 'students_form.status = :status';
         }
         
         if (!empty($search)) {
-            $sql .= ' AND (id = :search OR LOWER(form_data) LIKE LOWER(:search_like))';
+            $sql .= ' AND (students_form.id = :search OR LOWER(students_form.form_data) LIKE LOWER(:search_like))';
         }
 
-        $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+        $sql .= ' ORDER BY students_form.created_at DESC LIMIT :limit OFFSET :offset';
 
         $this->db->query($sql);
         if ($status !== 'processed') {
@@ -111,5 +111,11 @@ class StudentSubmission {
         $this->db->query('SELECT * FROM students_form WHERE username = :username LIMIT 1');
         $this->db->bind(':username', $username);
         return $this->db->single();
+    }
+
+    public function deleteSubmission($id) {
+        $this->db->query('DELETE FROM students_form WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
     }
 }

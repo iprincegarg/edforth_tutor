@@ -29,23 +29,23 @@ class TutorSubmission {
     }
 
     public function getPaginatedSubmissions($status, $search = '', $limit = 25, $offset = 0, $activeFilters = []) {
-        $sql = 'SELECT * FROM tutors_form WHERE ';
+        $sql = 'SELECT tutors_form.*, user.status as login_status FROM tutors_form LEFT JOIN user ON tutors_form.username = user.username WHERE ';
         if ($status === 'processed') {
-            $sql .= 'status != "pending"';
+            $sql .= 'tutors_form.status != "pending"';
         } else {
-            $sql .= 'status = :status';
+            $sql .= 'tutors_form.status = :status';
         }
         
         if (!empty($search)) {
-            $sql .= ' AND (id = :search OR LOWER(form_data) LIKE LOWER(:search_like))';
+            $sql .= ' AND (tutors_form.id = :search OR LOWER(tutors_form.form_data) LIKE LOWER(:search_like))';
         }
 
         // Apply filter conditions: each selected filter value must appear in form_data JSON
         foreach ($activeFilters as $fieldId => $value) {
-            $sql .= ' AND LOWER(form_data) LIKE LOWER(:filter_val_' . $fieldId . ')';
+            $sql .= ' AND LOWER(tutors_form.form_data) LIKE LOWER(:filter_val_' . $fieldId . ')';
         }
 
-        $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+        $sql .= ' ORDER BY tutors_form.created_at DESC LIMIT :limit OFFSET :offset';
 
         $this->db->query($sql);
         if ($status !== 'processed') {
@@ -124,5 +124,11 @@ class TutorSubmission {
         $this->db->query('SELECT * FROM tutors_form WHERE username = :username LIMIT 1');
         $this->db->bind(':username', $username);
         return $this->db->single();
+    }
+
+    public function deleteSubmission($id) {
+        $this->db->query('DELETE FROM tutors_form WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
     }
 }

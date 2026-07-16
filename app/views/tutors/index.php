@@ -131,7 +131,34 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                                                 </svg>
                                             </button>
+
+                                            <form action="<?php echo URLROOT; ?>/tutors/toggle_access" method="POST" style="display:inline;" title="<?php echo ($sub->login_status == 1) ? 'Disable Access' : 'Enable Access'; ?>" onsubmit="return confirm('Are you sure you want to <?php echo ($sub->login_status == 1) ? 'disable' : 'enable'; ?> access for this user?');">
+                                                <input type="hidden" name="submission_id" value="<?php echo $sub->id; ?>">
+                                                <button type="submit" class="action-btn-edit" style="color: <?php echo ($sub->login_status == 1) ? '#ef4444' : '#22c55e'; ?>;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                    <?php if($sub->login_status == 1): ?>
+                                                    <!-- Disable Icon (Lock) -->
+                                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                    </svg>
+                                                    <?php else: ?>
+                                                    <!-- Enable Icon (Unlock) -->
+                                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                    <?php endif; ?>
+                                                </button>
+                                            </form>
+
                                             <?php endif; ?>
+
+                                            <form action="<?php echo URLROOT; ?>/tutors/delete_account" method="POST" style="display:inline;" class="action-form-inline" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this user account and their submission? This cannot be undone.');">
+                                                <input type="hidden" name="submission_id" value="<?php echo $sub->id; ?>">
+                                                <button type="submit" class="action-btn-delete" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Delete Account">
+                                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -211,6 +238,15 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                                                 <button type="submit" class="action-btn-delete" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Reject">
                                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                            
+                                            <form action="<?php echo URLROOT; ?>/tutors/delete_account" method="POST" style="display:inline;" class="action-form-inline" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this submission? This cannot be undone.');">
+                                                <input type="hidden" name="submission_id" value="<?php echo $sub->id; ?>">
+                                                <button type="submit" class="action-btn-delete" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Delete">
+                                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
                                                 </button>
                                             </form>

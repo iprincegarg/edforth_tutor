@@ -110,4 +110,56 @@ class StudentDashboardController extends Controller {
 
         $this->view('student_portal/my_classes', $data);
     }
+    public function bookTutor() {
+        $tutorModel = $this->model('TutorSubmission');
+        $fieldModel = $this->model('FormField');
+        $filterModel = $this->model('Filter');
+
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+
+        // Collect active filter selections
+        $activeFilters = [];
+        foreach ($_GET as $key => $value) {
+            if (strpos($key, 'filter_field_') === 0 && !empty($value)) {
+                $fieldId = str_replace('filter_field_', '', $key);
+                $activeFilters[(int)$fieldId] = $value;
+            }
+        }
+
+        $limit = 12; // 12 tutors per page
+        $offset = ($page - 1) * $limit;
+
+        // Fetch approved tutors
+        $tutors = $tutorModel->getPaginatedSubmissions('approved', $search, $limit, $offset, $activeFilters);
+        $totalTutors = $tutorModel->getTotalSubmissions('approved', $search, $activeFilters);
+        $totalPages = ceil($totalTutors / $limit);
+
+        $fields = $fieldModel->getFieldsWithDetails();
+        
+        // Extract fields that should be shown to the user
+        $publicFields = array_filter($fields, function($f) {
+            return $f->show_to_user == 1;
+        });
+
+        // Extract fields that act as filters
+        $filterFields = array_filter($fields, function($f) {
+            return !empty($f->filter_id) && !empty($f->filterValues);
+        });
+
+        $data = [
+            'title' => 'Book Tutor',
+            'tutors' => $tutors,
+            'totalTutors' => $totalTutors,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'publicFields' => $publicFields,
+            'filterFields' => $filterFields,
+            'search' => $search,
+            'activeFilters' => $activeFilters
+        ];
+
+        $this->view('student_portal/book_tutor', $data);
+    }
 }

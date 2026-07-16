@@ -191,6 +191,47 @@ class StudentsController extends Controller {
         exit;
     }
 
+    public function toggle_access() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id = $_POST['submission_id'] ?? 0;
+            $submission = $this->submissionModel->getSubmissionById($id);
+            if ($submission && !empty($submission->username)) {
+                if ($this->userModel->toggleStatus($submission->username)) {
+                    $_SESSION['success_msg'] = 'Account access toggled successfully.';
+                } else {
+                    $_SESSION['field_err'] = 'Failed to toggle account access.';
+                }
+            } else {
+                $_SESSION['field_err'] = 'Could not find user account.';
+            }
+        }
+        header('Location: ' . URLROOT . '/students#Students');
+        exit;
+    }
+
+    public function delete_account() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id = $_POST['submission_id'] ?? 0;
+            $submission = $this->submissionModel->getSubmissionById($id);
+            if ($submission) {
+                $deletedUser = true;
+                if (!empty($submission->username)) {
+                    $deletedUser = $this->userModel->deleteUser($submission->username);
+                }
+                
+                if ($deletedUser && $this->submissionModel->deleteSubmission($id)) {
+                    $_SESSION['success_msg'] = 'Account and submission permanently deleted.';
+                } else {
+                    $_SESSION['field_err'] = 'Failed to delete account or submission.';
+                }
+            } else {
+                $_SESSION['field_err'] = 'Submission not found.';
+            }
+        }
+        header('Location: ' . URLROOT . '/students#Students');
+        exit;
+    }
+
     public function reject_submission() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id = $_POST['submission_id'] ?? 0;
