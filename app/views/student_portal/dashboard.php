@@ -35,6 +35,9 @@
                                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                         View File
                                        </a>';
+                                } elseif (is_array($val)) {
+                                    $safeVal = htmlspecialchars(implode(', ', $val));
+                                    $valHtml = $safeVal ? $safeVal : '<span style="color:#94a3b8; font-style:italic;">N/A</span>';
                                 } else {
                                     $safeVal = htmlspecialchars((string)$val);
                                     $valHtml = $safeVal ? $safeVal : '<span style="color:#94a3b8; font-style:italic;">N/A</span>';

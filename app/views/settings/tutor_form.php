@@ -337,7 +337,7 @@
                             <select name="field_type" id="fieldTypeSelect" class="form-control" onchange="onFieldTypeChange()" required>
                                 <option value="" disabled selected>Select a field type...</option>
                                 <?php 
-                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'filter' => 'Filter Option', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection', 'date' => 'Date Picker'];
+                                $types = ['text' => 'Text Input', 'radio' => 'Radio Buttons', 'filter' => 'Filter Option', 'file' => 'File Upload', 'textarea' => 'Text Area', 'dropdown' => 'Dropdown Selection', 'multi_select' => 'Multi-Select Dropdown', 'date' => 'Date Picker'];
                                 $selectedType = $data['field_form_data']['field_type'] ?? '';
                                 foreach ($types as $val => $label) {
                                     $sel = ($selectedType === $val) ? 'selected' : '';
@@ -786,7 +786,7 @@
             document.getElementById('config-charlimit').style.display = 'block';
         } else if(type === 'textarea') {
             document.getElementById('config-charlimit').style.display = 'block';
-        } else if(type === 'radio' || type === 'dropdown') {
+        } else if(type === 'radio' || type === 'dropdown' || type === 'multi_select') {
             document.getElementById('config-values').style.display = 'block';
         } else if(type === 'filter') {
             document.getElementById('config-filter').style.display = 'block';

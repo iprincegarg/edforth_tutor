@@ -379,6 +379,8 @@ function buildPaginationUrl($t_page, $s_page, $search) {
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         View File
                        </a>`;
+            } else if (Array.isArray(val)) {
+                val = val.map(v => v.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;')).join(', ');
             } else {
                 val = val ? val.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;') : '<span style="color:#94a3b8; font-style:italic;">N/A</span>';
             }

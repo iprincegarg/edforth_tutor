@@ -400,6 +400,15 @@
                                         <?php endforeach; ?>
                                     </select>
                                     
+                                <?php elseif($field->field_type === 'multi_select'): ?>
+                                    <?php $options = array_filter(array_map('trim', explode(',', $field->field_values))); ?>
+                                    <select id="<?php echo $fieldId; ?>" name="<?php echo $fieldName; ?>[]" class="form-control" multiple <?php echo $required; ?>>
+                                        <?php foreach($options as $opt): ?>
+                                            <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 6px;">Hold Ctrl (Windows) or Command (Mac) to select multiple options.</small>
+                                    
                                 <?php elseif($field->field_type === 'filter'): ?>
                                     <?php 
                                     $options = array_filter(array_map('trim', explode(',', $field->filterValues ?? '')));
