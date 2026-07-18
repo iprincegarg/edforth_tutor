@@ -97,6 +97,11 @@
                             Front CMS
                         </a>
                     </li>
+                    <li>
+                        <a href="<?php echo URLROOT; ?>/settings/create_course" class="sidebar-link">
+                            Create Course
+                        </a>
+                    </li>
                 </ul>
             </li>
         <?php endif; ?>

@@ -9,6 +9,7 @@ class SettingsController extends Controller {
     private $studentSectionModel;
     private $studentFieldModel;
     private $studentSubmissionModel;
+    private $courseModel;
 
     public function __construct() {
         if(!isLoggedIn()) {
@@ -22,6 +23,7 @@ class SettingsController extends Controller {
         $this->studentSectionModel = $this->model('StudentSection');
         $this->studentFieldModel = $this->model('StudentFormField');
         $this->studentSubmissionModel = $this->model('StudentSubmission');
+        $this->courseModel = $this->model('Course');
     }
 
     public function index() {
@@ -549,5 +551,104 @@ class SettingsController extends Controller {
         }
 
         $this->view('settings/student_form', $data);
+    }
+
+    public function create_course() {
+        if(!hasPermission('create_course')) {
+            // Superadmin has all permissions
+        }
+
+        $courses = $this->courseModel->getCourses();
+        
+        $data = [
+            'title' => 'Create Course',
+            'courses' => $courses,
+            'success_msg' => $_SESSION['success_msg'] ?? '',
+            'course_err' => $_SESSION['course_err'] ?? '',
+            'form_data' => $_SESSION['form_data'] ?? []
+        ];
+
+        unset($_SESSION['success_msg']);
+        unset($_SESSION['course_err']);
+        unset($_SESSION['form_data']);
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $action = $_POST['action'] ?? '';
+
+            if($action === 'add_course') {
+                $title = trim($_POST['title'] ?? '');
+                $level = (int)($_POST['level'] ?? 1);
+                $parentId = $_POST['parent_id'] ?? null;
+                
+                if (empty($parentId)) {
+                    $parentId = null;
+                }
+
+                if(empty($title)) {
+                    $data['course_err'] = 'Please enter a course title.';
+                } elseif(strlen($title) > 30) {
+                    $data['course_err'] = 'Course title cannot exceed 30 characters.';
+                } elseif($level < 1 || $level > 10) {
+                    $data['course_err'] = 'Level must be between 1 and 10.';
+                }
+
+                if(empty($data['course_err'])) {
+                    if($this->courseModel->addCourse($title, $level, $parentId)) {
+                        $_SESSION['success_msg'] = 'Course added successfully!';
+                    } else {
+                        $_SESSION['course_err'] = 'Something went wrong adding the course.';
+                        $_SESSION['form_data'] = $_POST;
+                    }
+                } else {
+                    $_SESSION['course_err'] = $data['course_err'];
+                    $_SESSION['form_data'] = $_POST;
+                }
+                header('Location: ' . URLROOT . '/settings/create_course');
+                exit;
+            } elseif($action === 'edit_course') {
+                $id = $_POST['course_id'] ?? 0;
+                $title = trim($_POST['title'] ?? '');
+                $level = (int)($_POST['level'] ?? 1);
+                $parentId = $_POST['parent_id'] ?? null;
+
+                if (empty($parentId)) {
+                    $parentId = null;
+                }
+
+                if(empty($title)) {
+                    $data['course_err'] = 'Please enter a course title.';
+                } elseif(strlen($title) > 30) {
+                    $data['course_err'] = 'Course title cannot exceed 30 characters.';
+                } elseif($level < 1 || $level > 10) {
+                    $data['course_err'] = 'Level must be between 1 and 10.';
+                }
+
+                if(empty($data['course_err'])) {
+                    // Prevent circular dependency (parent cannot be itself)
+                    if ($id == $parentId) {
+                        $_SESSION['course_err'] = 'Course cannot be its own parent.';
+                    } else if($this->courseModel->updateCourse($id, $title, $level, $parentId)) {
+                        $_SESSION['success_msg'] = 'Course updated successfully!';
+                    } else {
+                        $_SESSION['course_err'] = 'Something went wrong updating the course.';
+                    }
+                } else {
+                    $_SESSION['course_err'] = $data['course_err'];
+                }
+                header('Location: ' . URLROOT . '/settings/create_course');
+                exit;
+            } elseif($action === 'delete_course') {
+                $id = $_POST['course_id'] ?? 0;
+                if($this->courseModel->deleteCourse($id)) {
+                    $_SESSION['success_msg'] = 'Course deleted successfully!';
+                } else {
+                    $_SESSION['course_err'] = 'Could not delete course.';
+                }
+                header('Location: ' . URLROOT . '/settings/create_course');
+                exit;
+            }
+        }
+
+        $this->view('settings/create_course', $data);
     }
 }
