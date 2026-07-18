@@ -298,6 +298,89 @@
                 font-size: 1.25rem;
             }
         }
+
+        /* Custom Multi-select styles */
+        .custom-multi-select-container {
+            position: relative;
+            width: 100%;
+        }
+        .custom-multi-select-display {
+            min-height: 48px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background-color: #fff;
+            cursor: pointer;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+        .custom-multi-select-display.open {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--input-focus);
+        }
+        .custom-chip {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .custom-chip-remove {
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+        .custom-chip-remove:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .custom-placeholder {
+            color: #9ca3af;
+            padding-left: 0.5rem;
+        }
+        .custom-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-top: 0.25rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+            display: none;
+        }
+        .custom-dropdown-list.show {
+            display: block;
+        }
+        .custom-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+        .custom-dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .custom-dropdown-item.selected {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -407,7 +490,6 @@
                                             <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 6px;">Hold Ctrl (Windows) or Command (Mac) to select multiple options.</small>
                                     
                                 <?php elseif($field->field_type === 'filter'): ?>
                                     <?php 
@@ -445,5 +527,113 @@
             <?php endif; ?>
         </form>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const multiSelects = document.querySelectorAll('select[multiple]');
+        
+        multiSelects.forEach(select => {
+            // Hide original select
+            select.style.display = 'none';
+            
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'custom-multi-select-container';
+            select.parentNode.insertBefore(container, select);
+            container.appendChild(select); // move select inside container
+            
+            // Create display area
+            const display = document.createElement('div');
+            display.className = 'custom-multi-select-display';
+            container.appendChild(display);
+            
+            // Create dropdown list
+            const dropdownList = document.createElement('div');
+            dropdownList.className = 'custom-dropdown-list';
+            container.appendChild(dropdownList);
+            
+            // Populate dropdown and initial state
+            const options = Array.from(select.options);
+            
+            function updateDisplay() {
+                display.innerHTML = '';
+                let hasSelected = false;
+                
+                options.forEach((opt, index) => {
+                    if (opt.selected) {
+                        hasSelected = true;
+                        const chip = document.createElement('div');
+                        chip.className = 'custom-chip';
+                        chip.innerHTML = `
+                            ${opt.text}
+                            <span class="custom-chip-remove" data-index="${index}">×</span>
+                        `;
+                        display.appendChild(chip);
+                    }
+                });
+                
+                if (!hasSelected) {
+                    const placeholder = document.createElement('span');
+                    placeholder.className = 'custom-placeholder';
+                    placeholder.textContent = 'Select options...';
+                    display.appendChild(placeholder);
+                }
+                
+                // Add event listeners to remove buttons
+                const removeBtns = display.querySelectorAll('.custom-chip-remove');
+                removeBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = btn.getAttribute('data-index');
+                        options[idx].selected = false;
+                        renderDropdown();
+                        updateDisplay();
+                        // trigger change event on original select
+                        select.dispatchEvent(new Event('change'));
+                    });
+                });
+            }
+            
+            function renderDropdown() {
+                dropdownList.innerHTML = '';
+                options.forEach((opt, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'custom-dropdown-item' + (opt.selected ? ' selected' : '');
+                    item.textContent = opt.text;
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        opt.selected = !opt.selected; // toggle
+                        renderDropdown();
+                        updateDisplay();
+                        select.dispatchEvent(new Event('change'));
+                    });
+                    dropdownList.appendChild(item);
+                });
+            }
+            
+            display.addEventListener('click', () => {
+                const isOpen = dropdownList.classList.contains('show');
+                // Close all other dropdowns
+                document.querySelectorAll('.custom-dropdown-list').forEach(list => list.classList.remove('show'));
+                document.querySelectorAll('.custom-multi-select-display').forEach(disp => disp.classList.remove('open'));
+                
+                if (!isOpen) {
+                    dropdownList.classList.add('show');
+                    display.classList.add('open');
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) {
+                    dropdownList.classList.remove('show');
+                    display.classList.remove('open');
+                }
+            });
+            
+            updateDisplay();
+            renderDropdown();
+        });
+    });
+    </script>
 </body>
 </html>

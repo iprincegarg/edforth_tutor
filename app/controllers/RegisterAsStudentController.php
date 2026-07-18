@@ -36,7 +36,7 @@ class RegisterAsStudentController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $submissionModel = $this->model('StudentSubmission');
             $formData = [];
-            $uploadDir = '../public/uploads/students/';
+            $uploadDir = APPROOT . '/../public/uploads/students/';
 
             // Make directory if it doesn't exist
             if (!is_dir($uploadDir)) {
