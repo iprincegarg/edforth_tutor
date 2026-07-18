@@ -84,37 +84,42 @@ class TutorsController extends Controller {
             if(empty($username) || empty($password)) {
                 $_SESSION['field_err'] = 'Username and password are required to approve the tutor.';
             } else {
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                
-                if($this->userModel->createUser($username, $hashedPassword, 'tutor', 1)) {
-                    $this->submissionModel->updateStatusAndCredentials($id, 'approved', $username, $password);
-                    
-                    // Try to send email
-                    $submission = $this->submissionModel->getSubmissionById($id);
-                    $fields = $this->fieldModel->getFieldsWithDetails();
-                    $emailFieldId = null;
-                    foreach ($fields as $field) {
-                        if (stripos($field->field_name, 'email') !== false) {
-                            $emailFieldId = 'field_' . $field->id;
-                            break;
-                        }
-                    }
-                    $toEmail = null;
-                    if ($submission && $emailFieldId) {
-                        $formData = json_decode($submission->form_data, true);
-                        if (isset($formData[$emailFieldId])) {
-                            $toEmail = $formData[$emailFieldId];
-                        }
-                    }
-                    
-                    if ($toEmail && filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
-                        MailHelper::sendCredentials($toEmail, $username, $password, 'tutor');
-                        $_SESSION['success_msg'] = 'Tutor approved, account created, and email sent successfully!';
-                    } else {
-                        $_SESSION['success_msg'] = 'Tutor approved and account created successfully! (Could not send email: no valid email field found)';
-                    }
+                // Check if username already exists
+                if ($this->userModel->getUserByUsername($username)) {
+                    $_SESSION['field_err'] = 'User already exists.';
                 } else {
-                    $_SESSION['field_err'] = 'Failed to create tutor account.';
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    
+                    if($this->userModel->createUser($username, $hashedPassword, 'tutor', 1)) {
+                        $this->submissionModel->updateStatusAndCredentials($id, 'approved', $username, $password);
+                        
+                        // Try to send email
+                        $submission = $this->submissionModel->getSubmissionById($id);
+                        $fields = $this->fieldModel->getFieldsWithDetails();
+                        $emailFieldId = null;
+                        foreach ($fields as $field) {
+                            if (stripos($field->field_name, 'email') !== false) {
+                                $emailFieldId = 'field_' . $field->id;
+                                break;
+                            }
+                        }
+                        $toEmail = null;
+                        if ($submission && $emailFieldId) {
+                            $formData = json_decode($submission->form_data, true);
+                            if (isset($formData[$emailFieldId])) {
+                                $toEmail = $formData[$emailFieldId];
+                            }
+                        }
+                        
+                        if ($toEmail && filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+                            MailHelper::sendCredentials($toEmail, $username, $password, 'tutor');
+                            $_SESSION['success_msg'] = 'Tutor approved, account created, and email sent successfully!';
+                        } else {
+                            $_SESSION['success_msg'] = 'Tutor approved and account created successfully! (Could not send email: no valid email field found)';
+                        }
+                    } else {
+                        $_SESSION['field_err'] = 'Failed to create tutor account.';
+                    }
                 }
             }
         }
