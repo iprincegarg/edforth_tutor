@@ -162,4 +162,68 @@ class StudentDashboardController extends Controller {
 
         $this->view('student_portal/book_tutor', $data);
     }
+
+    public function enroll() {
+        $courseModel = $this->model('Course');
+        $parentId = isset($_GET['parent_id']) && is_numeric($_GET['parent_id']) ? (int)$_GET['parent_id'] : null;
+
+        $courses = $courseModel->getCoursesByParent($parentId);
+        
+        foreach ($courses as $c) {
+            $c->is_leaf = !$courseModel->hasChildren($c->id);
+        }
+
+        $parentCourse = null;
+        if ($parentId !== null) {
+            $parentCourse = $courseModel->getCourseById($parentId);
+        }
+
+        $data = [
+            'title' => 'Enroll in Course',
+            'courses' => $courses,
+            'parentCourse' => $parentCourse,
+            'success_msg' => $_SESSION['success_msg'] ?? '',
+            'error_msg' => $_SESSION['error_msg'] ?? ''
+        ];
+
+        unset($_SESSION['success_msg']);
+        unset($_SESSION['error_msg']);
+
+        $this->view('student_portal/enroll', $data);
+    }
+
+    public function processEnrollment() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $courseId = isset($_POST['course_id']) ? (int)$_POST['course_id'] : 0;
+            $userId = $_SESSION['user_id'];
+
+            if ($courseId > 0) {
+                $enrollmentModel = $this->model('Enrollment');
+                
+                if ($enrollmentModel->hasEnrolled($userId, $courseId)) {
+                    $_SESSION['error_msg'] = 'You are already enrolled in this course.';
+                } else {
+                    if ($enrollmentModel->enrollStudent($userId, $courseId)) {
+                        $_SESSION['success_msg'] = 'Successfully enrolled in the course!';
+                    } else {
+                        $_SESSION['error_msg'] = 'Failed to enroll. Please try again.';
+                    }
+                }
+            } else {
+                $_SESSION['error_msg'] = 'Invalid course selected.';
+            }
+
+            $courseModel = $this->model('Course');
+            $course = $courseModel->getCourseById($courseId);
+            if ($course && $course->parent_id) {
+                header('Location: ' . URLROOT . '/student-dashboard/enroll?parent_id=' . $course->parent_id);
+            } else {
+                header('Location: ' . URLROOT . '/student-dashboard/enroll');
+            }
+            exit;
+        } else {
+            header('Location: ' . URLROOT . '/student-dashboard/enroll');
+            exit;
+        }
+    }
 }

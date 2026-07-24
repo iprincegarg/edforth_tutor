@@ -10,6 +10,7 @@ class SettingsController extends Controller {
     private $studentFieldModel;
     private $studentSubmissionModel;
     private $courseModel;
+    private $assessmentModel;
 
     public function __construct() {
         if(!isLoggedIn()) {
@@ -24,6 +25,7 @@ class SettingsController extends Controller {
         $this->studentFieldModel = $this->model('StudentFormField');
         $this->studentSubmissionModel = $this->model('StudentSubmission');
         $this->courseModel = $this->model('Course');
+        $this->assessmentModel = $this->model('Assessment');
     }
 
     public function index() {
@@ -650,5 +652,166 @@ class SettingsController extends Controller {
         }
 
         $this->view('settings/create_course', $data);
+    }
+
+    public function assessment() {
+        if(!hasPermission('create_course')) {
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        $courses = $this->courseModel->getCourses();
+        
+        $data = [
+            'title' => 'Assessment',
+            'courses' => $courses,
+            'success_msg' => $_SESSION['success_msg'] ?? '',
+            'error_msg' => $_SESSION['error_msg'] ?? ''
+        ];
+
+        unset($_SESSION['success_msg']);
+        unset($_SESSION['error_msg']);
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $course_id = $_POST['course_id'] ?? '';
+            
+            if(empty($course_id)) {
+                $_SESSION['error_msg'] = 'Please select a course level.';
+            } elseif(isset($_FILES['assessment_csv']) && $_FILES['assessment_csv']['error'] == 0) {
+                $mimes = ['application/vnd.ms-excel','text/plain','text/csv','text/tsv', 'application/csv'];
+                $ext = pathinfo($_FILES['assessment_csv']['name'], PATHINFO_EXTENSION);
+                
+                if(in_array($_FILES['assessment_csv']['type'], $mimes) || strtolower($ext) == 'csv') {
+                    $file = $_FILES['assessment_csv']['tmp_name'];
+                    $handle = fopen($file, "r");
+                    // Skip BOM if present
+                    $bom = fread($handle, 3);
+                    if ($bom != "\xEF\xBB\xBF") {
+                        rewind($handle);
+                    }
+                    $header = fgetcsv($handle, 1000, ",");
+                    
+                    if($header && count($header) >= 8) {
+                        $count = 0;
+                        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                            if(count($row) >= 8) {
+                                $qData = [
+                                    'course_id' => $course_id,
+                                    'question' => trim($row[0]),
+                                    'option_a' => trim($row[1]),
+                                    'option_b' => trim($row[2]),
+                                    'option_c' => trim($row[3]),
+                                    'option_d' => trim($row[4]),
+                                    'correct_answer' => trim($row[5]),
+                                    'explanation' => trim($row[6]),
+                                    'marks' => (int)trim($row[7])
+                                ];
+                                
+                                if(!empty($qData['question'])) {
+                                    $this->assessmentModel->addQuestion($qData);
+                                    $count++;
+                                }
+                            }
+                        }
+                        $_SESSION['success_msg'] = $count . ' questions uploaded successfully.';
+                    } else {
+                        $_SESSION['error_msg'] = 'Invalid CSV format. Please check the columns.';
+                    }
+                    fclose($handle);
+                } else {
+                    $_SESSION['error_msg'] = 'Please upload a valid CSV file.';
+                }
+            } else {
+                $_SESSION['error_msg'] = 'Error uploading file.';
+            }
+            header('Location: ' . URLROOT . '/settings/assessment');
+            exit;
+        }
+
+        $this->view('settings/assessment', $data);
+    }
+
+    public function assessment_questions() {
+        if(!hasPermission('create_course')) {
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $action = $_POST['action'] ?? '';
+            $id = $_POST['question_id'] ?? 0;
+            
+            if($action === 'delete') {
+                if($this->assessmentModel->deleteQuestion($id)) {
+                    $_SESSION['success_msg'] = 'Question deleted successfully!';
+                } else {
+                    $_SESSION['error_msg'] = 'Failed to delete question.';
+                }
+            } elseif($action === 'edit') {
+                $qData = [
+                    'question' => $_POST['question'] ?? '',
+                    'option_a' => $_POST['option_a'] ?? '',
+                    'option_b' => $_POST['option_b'] ?? '',
+                    'option_c' => $_POST['option_c'] ?? '',
+                    'option_d' => $_POST['option_d'] ?? '',
+                    'correct_answer' => $_POST['correct_answer'] ?? '',
+                    'explanation' => $_POST['explanation'] ?? '',
+                    'marks' => (int)($_POST['marks'] ?? 1)
+                ];
+                
+                if(!empty($qData['question'])) {
+                    if($this->assessmentModel->updateQuestion($id, $qData)) {
+                        $_SESSION['success_msg'] = 'Question updated successfully!';
+                    } else {
+                        $_SESSION['error_msg'] = 'Failed to update question.';
+                    }
+                } else {
+                    $_SESSION['error_msg'] = 'Question text cannot be empty.';
+                }
+            }
+            
+            $pageParam = isset($_GET['page']) ? '?page=' . $_GET['page'] : '';
+            header('Location: ' . URLROOT . '/settings/assessment_questions' . $pageParam);
+            exit;
+        }
+
+        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+        if($page < 1) $page = 1;
+        $limit = 20;
+        $offset = ($page - 1) * $limit;
+
+        $questions = $this->assessmentModel->getQuestionsPaginated($offset, $limit);
+        $total = $this->assessmentModel->getTotalQuestionsCount();
+        $totalPages = ceil($total / $limit);
+
+        $allCourses = $this->courseModel->getCourses();
+        $courseMap = [];
+        foreach($allCourses as $c) {
+            $courseMap[$c->id] = $c;
+        }
+
+        foreach($questions as $q) {
+            $path = [];
+            $currentId = $q->course_id;
+            while(isset($courseMap[$currentId])) {
+                $path[] = $courseMap[$currentId]->title;
+                $currentId = $courseMap[$currentId]->parent_id;
+            }
+            $q->hierarchy = implode(' &gt; ', array_reverse($path));
+        }
+
+        $data = [
+            'title' => 'Assessment Questions',
+            'questions' => $questions,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'success_msg' => $_SESSION['success_msg'] ?? '',
+            'error_msg' => $_SESSION['error_msg'] ?? ''
+        ];
+
+        unset($_SESSION['success_msg']);
+        unset($_SESSION['error_msg']);
+
+        $this->view('settings/assessment_questions', $data);
     }
 }

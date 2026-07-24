@@ -52,4 +52,21 @@ class Course {
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    public function getCoursesByParent($parentId = null) {
+        if ($parentId === null) {
+            $this->db->query("SELECT * FROM courses WHERE parent_id IS NULL ORDER BY title ASC");
+        } else {
+            $this->db->query("SELECT * FROM courses WHERE parent_id = :parent_id ORDER BY title ASC");
+            $this->db->bind(':parent_id', $parentId);
+        }
+        return $this->db->resultSet();
+    }
+
+    public function hasChildren($courseId) {
+        $this->db->query("SELECT COUNT(*) as count FROM courses WHERE parent_id = :course_id");
+        $this->db->bind(':course_id', $courseId);
+        $row = $this->db->single();
+        return $row->count > 0;
+    }
 }

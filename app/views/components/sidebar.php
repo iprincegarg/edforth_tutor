@@ -35,6 +35,11 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="<?php echo URLROOT; ?>/student-dashboard/enroll" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard/enroll') !== false ? 'active' : ''; ?>">
+                    Enroll in Course
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="<?php echo URLROOT; ?>/student-dashboard/myClasses" class="sidebar-link <?php echo strpos($_SERVER['REQUEST_URI'], '/student-dashboard/myClasses') !== false ? 'active' : ''; ?>">
                     My Classes
                 </a>
@@ -100,6 +105,11 @@
                     <li>
                         <a href="<?php echo URLROOT; ?>/settings/create_course" class="sidebar-link">
                             Create Course
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo URLROOT; ?>/settings/assessment" class="sidebar-link">
+                            Assessment
                         </a>
                     </li>
                 </ul>

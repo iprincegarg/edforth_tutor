@@ -126,7 +126,7 @@ class RegisterAsStudentController extends Controller {
             if ($submissionModel->addSubmission($jsonData, $username, $password)) {
                 
                 // Create user
-                $userModel->createUser($username, $hashedPassword, 'user', 1);
+                $userModel->createUser($username, $hashedPassword, 'student', 1);
 
                 $_SESSION['form_success'] = 'Your application has been successfully submitted!';
                 $_SESSION['new_credentials'] = [
