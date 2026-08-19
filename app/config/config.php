@@ -1,6 +1,6 @@
 <?php
 // DB Params
-define('DB_HOST', '103.110.127.186');
+define('DB_HOST', '38.109.10.140');
 define('DB_USER', 'edforth');
 define('DB_PASS', 'Ireava@001');
 define('DB_NAME', 'edforth');
